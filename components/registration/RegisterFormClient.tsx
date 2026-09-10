@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Rocket, ShieldCheck, UserCheck, AlertCircle, CheckCircle2, QrCode, CreditCard, ArrowRight, RefreshCw, Copy, Check, FileSpreadsheet, ExternalLink } from 'lucide-react'
+import { Rocket, ShieldCheck, UserCheck, AlertCircle, CheckCircle2, QrCode, CreditCard, ArrowRight, RefreshCw, Copy, Check, FileSpreadsheet, ExternalLink, Banknote, Upload, Image as ImageIcon, Mail } from 'lucide-react'
 import { BRANCHES, YEARS } from '@/lib/types'
 
 interface MemberState {
@@ -17,8 +17,10 @@ interface MemberState {
 
 export function RegisterFormClient() {
   const router = useRouter()
-  const [step, setStep] = useState<'DETAILS' | 'PAYMENT' | 'SUCCESS'>('DETAILS')
+  const [step, setStep] = useState<'DETAILS' | 'SUCCESS'>('DETAILS')
   const [teamName, setTeamName] = useState('')
+  
+  // Required Members (Leader + 2 Members = 3 Students)
   const [leader, setLeader] = useState<MemberState>({
     name: '',
     rollNumber: '',
@@ -46,6 +48,8 @@ export function RegisterFormClient() {
     email: '',
     phone: '',
   })
+
+  // Optional 4th Member (Team size 3 to 4 max)
   const [hasMember4, setHasMember4] = useState(false)
   const [member4, setMember4] = useState<MemberState>({
     name: '',
@@ -57,23 +61,54 @@ export function RegisterFormClient() {
     phone: '',
   })
 
+  // Payment Options
+  const [paymentMethod, setPaymentMethod] = useState<'PHONEPE' | 'CASH'>('PHONEPE')
+  const [utrInput, setUtrInput] = useState('')
+  const [receiptPreview, setReceiptPreview] = useState<string | null>(null)
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [registeredData, setRegisteredData] = useState<{
     teamId: string
     teamCode: string
     orderId: string
-    upiUri: string
     amount: number
+    paymentMethod: 'CASH' | 'PHONEPE'
   } | null>(null)
 
-  const [utrInput, setUtrInput] = useState('')
-  const [isVerifying, setIsVerifying] = useState(false)
   const [copied, setCopied] = useState(false)
+
+  // Handle Image File Upload for Payment Screenshot
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setErrorMsg('Image size must be under 5MB.')
+        return
+      }
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setReceiptPreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
 
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrorMsg(null)
+
+    if (paymentMethod === 'PHONEPE') {
+      if (!utrInput || utrInput.trim().length < 4) {
+        setErrorMsg('Please enter your PhonePe Transaction UTR / Ref Number.')
+        return
+      }
+      if (!receiptPreview) {
+        setErrorMsg('Please upload a screenshot or image of your PhonePe payment.')
+        return
+      }
+    }
+
     setIsSubmitting(true)
 
     try {
@@ -83,6 +118,9 @@ export function RegisterFormClient() {
         member2,
         member3,
         ...(hasMember4 ? { member4 } : {}),
+        paymentMethod,
+        utr: paymentMethod === 'PHONEPE' ? utrInput.trim() : undefined,
+        receiptUrl: paymentMethod === 'PHONEPE' ? receiptPreview : undefined,
       }
 
       const res = await fetch('/api/register', {
@@ -103,60 +141,16 @@ export function RegisterFormClient() {
         teamId: data.teamId,
         teamCode: data.teamCode,
         orderId: data.orderId,
-        upiUri: data.upiUri || `upi://pay?pa=srisivani.cse@upi&pn=Sri%20Sivani%20Innovation%20Week&am=500&cu=INR&tn=${data.teamCode}`,
-        amount: data.amount || 500,
+        amount: data.amount || 200,
+        paymentMethod: data.paymentMethod || paymentMethod,
       })
 
-      setStep('PAYMENT')
+      setStep('SUCCESS')
     } catch (err) {
       console.error(err)
       setErrorMsg('Network error. Please try again.')
     } finally {
       setIsSubmitting(false)
-    }
-  }
-
-  const handleVerifySubmit = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault()
-    if (!registeredData) return
-
-    setIsVerifying(true)
-    setErrorMsg(null)
-
-    try {
-      const res = await fetch('/api/payment/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderId: registeredData.orderId,
-          utr: utrInput || `UTR-PHONEPE-${Math.floor(100000000000 + Math.random() * 900000000000)}`,
-        }),
-      })
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        setErrorMsg(data.error || 'Verification error')
-        setIsVerifying(false)
-        return
-      }
-
-      const approveRes = await fetch('/api/payment/approve', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paymentId: data.payment.id }),
-      })
-
-      if (approveRes.ok || res.ok) {
-        setStep('SUCCESS')
-      } else {
-        setErrorMsg('Payment submitted for coordinator verification.')
-      }
-    } catch (err) {
-      console.error(err)
-      setErrorMsg('Verification failed. Try again.')
-    } finally {
-      setIsVerifying(false)
     }
   }
 
@@ -172,7 +166,7 @@ export function RegisterFormClient() {
           <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider">{label}</span>
           {isLeader && (
             <span className="rounded bg-indigo-500/20 px-2 py-0.5 text-[10px] font-bold text-indigo-300">
-              Team Leader & Login Admin
+              Team Leader & Primary Contact
             </span>
           )}
         </div>
@@ -247,10 +241,10 @@ export function RegisterFormClient() {
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">Email {isLeader ? '*' : '(Optional)'}</label>
+            <label className="block text-xs font-medium text-slate-300 mb-1">Email (Receives Confirmation Mail) *</label>
             <input
               type="email"
-              required={isLeader}
+              required
               value={state.email}
               onChange={(e) => setState({ ...state, email: e.target.value })}
               placeholder="e.g. student@srisivani.ac.in"
@@ -275,16 +269,17 @@ export function RegisterFormClient() {
   }
 
   if (step === 'SUCCESS' && registeredData) {
+    const isCash = registeredData.paymentMethod === 'CASH'
     return (
-      <div className="rounded-2xl border border-emerald-500/40 bg-slate-900 p-8 space-y-6 text-center max-w-xl mx-auto shadow-2xl">
+      <div className="rounded-2xl border border-indigo-500/40 bg-slate-900 p-8 space-y-6 text-center max-w-xl mx-auto shadow-2xl">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
           <CheckCircle2 className="h-10 w-10" />
         </div>
 
         <div className="space-y-2">
-          <h2 className="text-2xl font-extrabold text-white">Registration & Payment Verified! 🎉</h2>
+          <h2 className="text-2xl font-extrabold text-white">Team Registration Submitted! 🎉</h2>
           <p className="text-xs text-slate-300">
-            Your team details have been recorded in the official event database and Excel registry.
+            A confirmation email has been dispatched from <strong className="text-indigo-400">lokeshashapu@gmail.com</strong> to your team emails!
           </p>
         </div>
 
@@ -298,22 +293,35 @@ export function RegisterFormClient() {
             <strong className="text-white">{teamName}</strong>
           </div>
           <div className="flex justify-between border-b border-slate-800 pb-2">
-            <span className="text-slate-400">Payment Status:</span>
-            <span className="font-bold text-emerald-400 flex items-center gap-1">
-              <CheckCircle2 className="h-3.5 w-3.5" /> PAID & VERIFIED (₹{registeredData.amount})
+            <span className="text-slate-400">Payment Option:</span>
+            <span className={`font-bold ${isCash ? 'text-amber-400' : 'text-emerald-400'}`}>
+              {isCash ? '💵 Cash Payment Option' : '📱 PhonePe / UPI'}
             </span>
           </div>
           <div className="flex justify-between border-b border-slate-800 pb-2">
-            <span className="text-slate-400">Registration Status:</span>
-            <span className="font-bold text-emerald-400">✓ Confirmed</span>
+            <span className="text-slate-400">Status:</span>
+            <span className={`font-bold ${isCash ? 'text-amber-400' : 'text-emerald-400'}`}>
+              {isCash ? 'Spot Reserved (Pay Cash to Confirm)' : '✓ Verified & Confirmed'}
+            </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-slate-400">Excel Registry:</span>
+            <span className="text-slate-400">Confirmation Mail:</span>
             <span className="text-indigo-300 font-mono flex items-center gap-1">
-              <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-400" /> Synced to Excel Registry
+              <Mail className="h-3.5 w-3.5 text-indigo-400" /> Sent from lokeshashapu@gmail.com
             </span>
           </div>
         </div>
+
+        {isCash && (
+          <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs text-amber-200 text-left space-y-1">
+            <strong className="font-bold flex items-center gap-1.5 text-amber-300">
+              <Banknote className="h-4 w-4" /> To Confirm Your Spot:
+            </strong>
+            <p>
+              Please pay <strong>₹{registeredData.amount} cash</strong> to the Student Lead Coordinators (A. Lokesh & P. Hareesh) or at the CSE Department Desk.
+            </p>
+          </div>
+        )}
 
         <div className="flex flex-col sm:flex-row gap-3 pt-2">
           <button
@@ -329,113 +337,9 @@ export function RegisterFormClient() {
             className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3.5 text-xs font-bold text-emerald-400 hover:bg-emerald-500/20 flex items-center justify-center gap-1.5"
           >
             <FileSpreadsheet className="h-4 w-4" />
-            <span>Download Excel Sheet</span>
+            <span>Excel Registry</span>
           </a>
-
-          <button
-            onClick={() => window.print()}
-            className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-3.5 text-xs font-semibold text-slate-300 hover:text-white"
-          >
-            Print Receipt
-          </button>
         </div>
-      </div>
-    )
-  }
-
-  if (step === 'PAYMENT' && registeredData) {
-    return (
-      <div className="rounded-2xl border border-indigo-500/40 bg-slate-900 p-8 space-y-8 max-w-xl mx-auto shadow-2xl">
-        <div className="text-center space-y-2 border-b border-slate-800 pb-6">
-          <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-400 border border-emerald-500/20">
-            Step 2: Registration Fee Payment
-          </span>
-          <h2 className="text-2xl font-black text-white">Pay via PhonePe / UPI</h2>
-          <p className="text-xs text-slate-400">
-            Team: <strong className="text-indigo-400">{registeredData.teamCode}</strong> ({teamName})
-          </p>
-        </div>
-
-        {errorMsg && (
-          <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 flex items-center gap-3 text-xs text-rose-300">
-            <AlertCircle className="h-5 w-5 shrink-0" />
-            <span>{errorMsg}</span>
-          </div>
-        )}
-
-        <div className="rounded-xl bg-slate-950 p-6 border border-slate-800 space-y-5 text-center">
-          <div className="space-y-1">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Registration Amount</span>
-            <p className="text-4xl font-black text-emerald-400">₹{registeredData.amount}</p>
-            <p className="text-[11px] text-slate-400">Covers full team participation (3–4 students)</p>
-          </div>
-
-          <div className="pt-2">
-            <a
-              href={registeredData.upiUri}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full inline-flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-violet-600 py-4 text-sm font-extrabold text-white shadow-xl shadow-purple-600/30 hover:scale-105 transition"
-            >
-              <CreditCard className="h-5 w-5" />
-              <span>Click to Pay ₹200 via PhonePe / GPay →</span>
-              <ExternalLink className="h-4 w-4" />
-            </a>
-          </div>
-
-          <div className="flex flex-col items-center gap-2 pt-4 border-t border-slate-800">
-            <div className="rounded-xl bg-white p-3 shadow-lg">
-              <div className="h-44 w-44 bg-slate-950 text-white rounded-lg flex flex-col items-center justify-center p-3 text-center">
-                <QrCode className="h-16 w-16 text-indigo-400 mb-2" />
-                <span className="text-[10px] font-mono text-slate-300">Scan QR Code using PhonePe</span>
-                <span className="text-[9px] text-indigo-300 mt-1 font-mono">srisivani.cse@upi</span>
-              </div>
-            </div>
-
-            <div className="pt-1 flex items-center gap-2 text-xs">
-              <span className="text-slate-400">UPI ID:</span>
-              <code className="rounded bg-slate-900 px-2.5 py-1 text-indigo-300 font-mono font-bold">srisivani.cse@upi</code>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText('srisivani.cse@upi')
-                  setCopied(true)
-                  setTimeout(() => setCopied(false), 2000)
-                }}
-                className="p-1.5 rounded bg-slate-800 text-slate-400 hover:text-white"
-              >
-                {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <form onSubmit={handleVerifySubmit} className="space-y-4 pt-4 border-t border-slate-800">
-          <div className="space-y-1">
-            <label className="block text-xs font-semibold text-slate-300">
-              Transaction UTR / Ref Number (Optional / Auto-Verified)
-            </label>
-            <input
-              type="text"
-              value={utrInput}
-              onChange={(e) => setUtrInput(e.target.value)}
-              placeholder="e.g. PhonePe UTR 324109854321"
-              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isVerifying}
-            className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 py-4 text-sm font-black text-white hover:from-emerald-500 hover:to-teal-500 transition shadow-xl disabled:opacity-50"
-          >
-            {isVerifying ? (
-              <RefreshCw className="h-5 w-5 animate-spin" />
-            ) : (
-              <CheckCircle2 className="h-5 w-5" />
-            )}
-            <span>I Have Paid — Verify Payment & Move to Next Page →</span>
-          </button>
-        </form>
       </div>
     )
   }
@@ -493,6 +397,153 @@ export function RegisterFormClient() {
         {hasMember4 && renderMemberInputs('Member 4 Details', member4, setMember4)}
       </div>
 
+      {/* PAYMENT METHOD SELECTION (CASH OR PHONEPE) */}
+      <div className="rounded-xl border border-indigo-500/40 bg-slate-900 p-6 space-y-6">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+          <div>
+            <h2 className="text-base font-bold text-white flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-indigo-400" />
+              <span>6. Registration Fee Payment Option</span>
+            </h2>
+            <p className="text-xs text-slate-400 mt-0.5">Registration Fee: ₹200 per team (3–4 students)</p>
+          </div>
+
+          <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-400 border border-emerald-500/20">
+            ₹200 / Team
+          </span>
+        </div>
+
+        {/* Radio Option Selector */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <button
+            type="button"
+            onClick={() => setPaymentMethod('PHONEPE')}
+            className={`rounded-xl border p-4 text-left transition flex items-center gap-3 ${
+              paymentMethod === 'PHONEPE'
+                ? 'border-indigo-500 bg-indigo-500/10 shadow-lg shadow-indigo-500/10'
+                : 'border-slate-800 bg-slate-950 hover:border-slate-700'
+            }`}
+          >
+            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${paymentMethod === 'PHONEPE' ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-400'}`}>
+              <QrCode className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="font-bold text-white text-sm">PhonePe / UPI</p>
+              <p className="text-[11px] text-slate-400">Scan QR Code, enter UTR & upload image</p>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setPaymentMethod('CASH')}
+            className={`rounded-xl border p-4 text-left transition flex items-center gap-3 ${
+              paymentMethod === 'CASH'
+                ? 'border-amber-500 bg-amber-500/10 shadow-lg shadow-amber-500/10'
+                : 'border-slate-800 bg-slate-950 hover:border-slate-700'
+            }`}
+          >
+            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${paymentMethod === 'CASH' ? 'bg-amber-600 text-white' : 'bg-slate-900 text-slate-400'}`}>
+              <Banknote className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="font-bold text-white text-sm">Pay Cash</p>
+              <p className="text-[11px] text-slate-400">Pay cash at CSE Department desk to confirm</p>
+            </div>
+          </button>
+        </div>
+
+        {/* CASH OPTION INSTRUCTIONS */}
+        {paymentMethod === 'CASH' && (
+          <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-5 space-y-2 text-xs text-amber-200">
+            <h3 className="font-bold text-amber-300 flex items-center gap-2 text-sm">
+              <Banknote className="h-4 w-4" /> Cash Payment Spot Reservation
+            </h3>
+            <p className="leading-relaxed">
+              Upon clicking proceed below, your team spot will be reserved. To confirm your spot, please pay <strong>₹200 cash</strong> to Student Lead Coordinators (A. Lokesh & P. Hareesh) or at the CSE Department Desk.
+            </p>
+            <p className="text-[11px] text-amber-400 font-mono pt-1">
+              ✉️ An official confirmation mail will be automatically sent from <strong>lokeshashapu@gmail.com</strong> to all team member emails.
+            </p>
+          </div>
+        )}
+
+        {/* PHONEPE OPTION INSTRUCTIONS & INPUTS */}
+        {paymentMethod === 'PHONEPE' && (
+          <div className="rounded-xl border border-slate-800 bg-slate-950 p-6 space-y-6">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-6 border-b border-slate-800 pb-6">
+              <div className="space-y-2 text-center sm:text-left">
+                <span className="rounded bg-indigo-500/20 px-2.5 py-1 text-xs font-mono font-bold text-indigo-300">
+                  PhonePe Mobile: 9876543210
+                </span>
+                <h3 className="text-lg font-bold text-white">Scan QR Code or Use Mobile Number</h3>
+                <p className="text-xs text-slate-400">
+                  UPI ID: <code className="text-indigo-400 font-mono font-bold">srisivani.cse@upi</code>
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText('srisivani.cse@upi')
+                    setCopied(true)
+                    setTimeout(() => setCopied(false), 2000)
+                  }}
+                  className="inline-flex items-center gap-1 text-xs text-indigo-400 hover:underline"
+                >
+                  {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                  <span>{copied ? 'UPI ID Copied!' : 'Copy UPI ID'}</span>
+                </button>
+              </div>
+
+              {/* QR Code Graphic */}
+              <div className="rounded-xl bg-white p-3 shadow-xl shrink-0">
+                <div className="h-36 w-36 bg-slate-950 text-white rounded-lg flex flex-col items-center justify-center p-2 text-center">
+                  <QrCode className="h-14 w-14 text-indigo-400 mb-1" />
+                  <span className="text-[9px] font-mono text-slate-300">Scan PhonePe QR</span>
+                  <span className="text-[8px] text-indigo-300 font-mono">₹200 / Team</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Inputs: Transaction ID & Image Upload */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  Transaction UTR / Ref Number *
+                </label>
+                <input
+                  type="text"
+                  required={paymentMethod === 'PHONEPE'}
+                  value={utrInput}
+                  onChange={(e) => setUtrInput(e.target.value)}
+                  placeholder="e.g. PhonePe UTR 324109854321"
+                  className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  Upload Payment Screenshot / Image *
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-300 file:mr-3 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500"
+                />
+              </div>
+            </div>
+
+            {receiptPreview && (
+              <div className="rounded-lg border border-indigo-500/30 bg-slate-900 p-3 space-y-2">
+                <span className="text-xs font-bold text-indigo-400 flex items-center gap-1">
+                  <ImageIcon className="h-4 w-4" /> Screenshot Image Preview:
+                </span>
+                <img src={receiptPreview} alt="Payment Receipt" className="max-h-40 rounded-lg border border-slate-800 mx-auto object-contain" />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Submit Button */}
       <button
         type="submit"
@@ -504,7 +555,11 @@ export function RegisterFormClient() {
         ) : (
           <ArrowRight className="h-5 w-5" />
         )}
-        <span>Proceed to PhonePe Payment →</span>
+        <span>
+          {paymentMethod === 'CASH'
+            ? 'Reserve Spot & Dispatch Confirmation Emails →'
+            : 'Submit Registration & Send Confirmation Mails →'}
+        </span>
       </button>
     </form>
   )

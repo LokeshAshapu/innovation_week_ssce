@@ -16,8 +16,6 @@ import { LiveEventProjectorModal } from '@/components/live/LiveEventProjectorMod
 import { TiltCard } from '@/components/ui/TiltCard'
 
 export default function HomePage() {
-  const [liveModeOpen, setLiveModeOpen] = useState(false)
-
   const studentCoordinators = [
     { name: 'A. Lokesh', role: 'Student Lead Coordinator', day: 'Day 1 Lead' },
     { name: 'P. Hareesh', role: 'Student Co-Coordinator', day: 'Day 1 Lead' },
@@ -162,9 +160,6 @@ export default function HomePage() {
       </section>
 
       <Footer />
-
-      {/* Live Event Projector Modal */}
-      <LiveEventProjectorModal isOpen={liveModeOpen} onClose={() => setLiveModeOpen(false)} />
     </div>
   )
 }

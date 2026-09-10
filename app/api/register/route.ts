@@ -116,21 +116,56 @@ export async function POST(request: Request) {
     // Auto-login team leader session
     await createSession(user.id)
 
-    // 8. Initiate Payment Order
-    const regFee = Number(process.env.NEXT_PUBLIC_REGISTRATION_FEE || 500)
-    const paymentResult = await PaymentService.initiatePayment({
-      teamId: team.id,
+    const { paymentMethod = 'PHONEPE', utr, receiptUrl } = body
+
+    const isCash = paymentMethod === 'CASH'
+    const regFee = Number(process.env.NEXT_PUBLIC_REGISTRATION_FEE || 200)
+
+    // 8. Create Payment Record
+    const orderId = `ORD-${teamCode}-${Date.now().toString().slice(-4)}`
+    const payment = await db.payment.create({
+      data: {
+        teamId: team.id,
+        orderId,
+        provider: isCash ? 'OFFLINE_CASH' : 'PHONEPE_UPI',
+        amount: regFee,
+        utr: utr || null,
+        receiptUrl: receiptUrl || null,
+        status: isCash ? 'PENDING' : 'SUCCESS',
+        verifiedAt: isCash ? null : new Date(),
+      },
+    })
+
+    // Update Team Payment Status
+    await db.team.update({
+      where: { id: team.id },
+      data: {
+        paymentStatus: isCash ? 'CASH_PENDING' : 'SUCCESS',
+        currentStep: isCash ? 1 : 2,
+      },
+    })
+
+    // 9. Dispatch Styled Confirmation Email from lokeshashapu@gmail.com
+    const { sendRegistrationEmail } = await import('@/lib/email')
+    await sendRegistrationEmail({
+      teamName: teamName.trim(),
+      teamCode,
+      paymentMethod: isCash ? 'CASH' : 'PHONEPE',
+      utr: utr || undefined,
+      receiptUrl: receiptUrl || undefined,
+      members: membersList,
       amount: regFee,
-      provider: 'UPI_INTENT',
+    }).catch((emailErr) => {
+      console.error('Failed to send confirmation email:', emailErr)
     })
 
     return NextResponse.json({
       success: true,
       teamId: team.id,
       teamCode: team.teamCode,
-      orderId: paymentResult.orderId,
-      upiUri: paymentResult.upiUri,
+      orderId,
       amount: regFee,
+      paymentMethod,
     })
   } catch (error) {
     console.error('Registration server error:', error)

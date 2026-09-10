@@ -16,7 +16,7 @@ export function Footer() {
               <span className="font-bold text-white text-base">INNOVATION WEEK 2026</span>
             </div>
             <p className="text-slate-400 leading-relaxed">
-              "From Idea to Startup – Building the Next Generation of Entrepreneurs". Five days of intense innovation, prototype development, MVP creation and pitch finale.
+              "Build, Pitch & Win Big – Building the Next Generation of Tech Leaders". Five days of intense innovation, prototype development, MVP creation and pitch finale.
             </p>
             <div className="pt-2 text-indigo-400 font-semibold flex items-center gap-1.5">
               <ShieldCheck className="h-4 w-4 text-emerald-400" />

@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Innovation Week 2026 — From Idea to Startup',
-  description: 'Building the Next Generation of Entrepreneurs. Organized by Dept of CSE & AI-ML, Sri Sivani College of Engineering.',
+  title: 'Innovation Week 2026 — Build, Pitch & Win Big | Sri Sivani College of Engineering',
+  description: 'Building the Next Generation of Tech Leaders. Organized by Dept of CSE & AI-ML in collaboration with Ratan Tata Innovation Hub.',
 }
 
 export default function RootLayout({

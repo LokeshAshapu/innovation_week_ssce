@@ -5,10 +5,10 @@ import { TiltCard } from '@/components/ui/TiltCard'
 
 export function HeroStats() {
   const stats = [
-    { label: '5 DAYS', desc: 'Innovation Journey', icon: Calendar, color: 'text-indigo-400', bg: 'bg-indigo-500/10' },
-    { label: '25–30', desc: 'Expected Teams', icon: Users, color: 'text-violet-400', bg: 'bg-violet-500/10' },
-    { label: '4–5', desc: 'Students / Team', icon: Award, color: 'text-amber-400', bg: 'bg-amber-500/10' },
-    { label: '1', desc: 'Idea → Startup', icon: Rocket, color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
+    { label: '5 DAYS', desc: 'Action-Packed Sprint', icon: Calendar, color: 'text-indigo-400', bg: 'bg-indigo-500/10' },
+    { label: '3–4', desc: 'Students / Team', icon: Users, color: 'text-violet-400', bg: 'bg-violet-500/10' },
+    { label: '₹200', desc: 'Fee per Team', icon: Rocket, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+    { label: '100%', desc: 'Jury & Certificates', icon: Award, color: 'text-amber-400', bg: 'bg-amber-500/10' },
   ]
 
   return (

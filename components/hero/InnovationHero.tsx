@@ -37,8 +37,9 @@ export function InnovationHero() {
                 </span>
               </h1>
               
-              <p className="text-xl sm:text-2xl font-bold text-slate-200 tracking-tight">
-                From Idea to Startup
+              <p className="text-xl sm:text-2xl font-extrabold text-indigo-200 tracking-tight flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-amber-400 inline" />
+                Build, Pitch & Win Big at Srikakulam&apos;s Flagship Innovation Hackathon
               </p>
             </div>
 
