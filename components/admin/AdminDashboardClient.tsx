@@ -65,9 +65,53 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
   const [annMsg, setAnnMsg] = useState<string | null>(null)
 
   // Settings state
-  const [feeAmount, setFeeAmount] = useState(settings?.regFee || 500)
+  const [feeAmount, setFeeAmount] = useState(settings?.regFee || 200)
   const [upiId, setUpiId] = useState(settings?.upiId || 'srisivani.cse@upi')
+  const [phonePeMobile, setPhonePeMobile] = useState('6301451462')
+  const [qrCodeUrl, setQrCodeUrl] = useState('')
   const [resultsPublished, setResultsPublished] = useState(settings?.resultsPublished ?? true)
+  const [settingsSavedMsg, setSettingsSavedMsg] = useState<string | null>(null)
+
+  // Load custom settings from localStorage if available
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('iw2026_event_settings')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (parsed.phonePeMobile) setPhonePeMobile(parsed.phonePeMobile)
+        if (parsed.upiId) setUpiId(parsed.upiId)
+        if (parsed.feeAmount) setFeeAmount(parsed.feeAmount)
+        if (parsed.qrCodeUrl) setQrCodeUrl(parsed.qrCodeUrl)
+        if (parsed.resultsPublished !== undefined) setResultsPublished(parsed.resultsPublished)
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }, [])
+
+  const handleQrUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setQrCodeUrl(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleSaveSettings = () => {
+    const payload = {
+      phonePeMobile: phonePeMobile.trim(),
+      upiId: upiId.trim(),
+      feeAmount,
+      qrCodeUrl,
+      resultsPublished,
+    }
+    localStorage.setItem('iw2026_event_settings', JSON.stringify(payload))
+    setSettingsSavedMsg('Payment settings & QR code updated successfully! Changes reflect live on registration form.')
+    setTimeout(() => setSettingsSavedMsg(null), 4000)
+  }
 
   // Timer Effect
   useEffect(() => {
@@ -700,40 +744,113 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
 
       {/* SECTION 35: ADMIN SETTINGS */}
       {activeTab === 'SETTINGS' && (
-        <div className="space-y-6 max-w-xl mx-auto rounded-2xl border border-slate-800 bg-slate-900 p-6">
-          <h2 className="text-lg font-bold text-white">Event Configuration Settings</h2>
-          
-          <div className="space-y-4 text-xs">
+        <div className="space-y-6 max-w-2xl mx-auto rounded-3xl border border-slate-800 bg-slate-900/90 backdrop-blur-xl p-6 sm:p-8 shadow-2xl">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-4">
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Registration Fee (₹)</label>
+              <h2 className="text-xl font-extrabold text-white">Payment & Event Settings</h2>
+              <p className="text-xs text-slate-400">Directly modify payment QR code, PhonePe mobile number, and UPI ID</p>
+            </div>
+            <Settings className="h-6 w-6 text-indigo-400" />
+          </div>
+
+          {settingsSavedMsg && (
+            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 flex items-center gap-2.5 text-xs text-emerald-300">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
+              <span>{settingsSavedMsg}</span>
+            </div>
+          )}
+
+          <div className="space-y-5 text-xs">
+            {/* PhonePe Mobile Number */}
+            <div>
+              <label className="block font-semibold text-slate-300 mb-1.5">PhonePe / Payment Mobile Number</label>
               <input
-                type="number"
-                value={feeAmount}
-                onChange={(e) => setFeeAmount(Number(e.target.value))}
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-white"
+                type="text"
+                value={phonePeMobile}
+                onChange={(e) => setPhonePeMobile(e.target.value)}
+                placeholder="e.g. 6301451462"
+                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none"
               />
             </div>
 
+            {/* Payment Recipient UPI ID */}
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Payment Recipient UPI ID</label>
+              <label className="block font-semibold text-slate-300 mb-1.5">Payment Recipient UPI ID</label>
               <input
                 type="text"
                 value={upiId}
                 onChange={(e) => setUpiId(e.target.value)}
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-white"
+                placeholder="e.g. srisivani.cse@upi"
+                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none"
               />
             </div>
 
-            <div className="flex items-center justify-between pt-2">
-              <span className="font-medium text-slate-300">Publish Final Results on Leaderboard</span>
+            {/* Registration Fee */}
+            <div>
+              <label className="block font-semibold text-slate-300 mb-1.5">Registration Fee per Team (₹)</label>
+              <input
+                type="number"
+                value={feeAmount}
+                onChange={(e) => setFeeAmount(Number(e.target.value))}
+                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none"
+              />
+            </div>
+
+            {/* Upload Payment QR Code Image */}
+            <div className="space-y-2 pt-2 border-t border-slate-800">
+              <label className="block font-semibold text-slate-300">Payment QR Code Image</label>
+              <p className="text-[11px] text-slate-400">Upload your custom PhonePe / GPay QR code image to display on registration page:</p>
+              
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleQrUpload}
+                  className="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer"
+                />
+
+                {qrCodeUrl && (
+                  <div className="relative shrink-0 border border-indigo-500/40 rounded-2xl bg-white p-2 text-center">
+                    <img src={qrCodeUrl} alt="Uploaded QR Code" className="h-28 w-28 object-contain rounded-xl" />
+                    <button
+                      type="button"
+                      onClick={() => setQrCodeUrl('')}
+                      className="absolute -top-2 -right-2 rounded-full bg-rose-600 p-1 text-white shadow-md hover:bg-rose-500"
+                      title="Remove QR Code"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Results Leaderboard Visibility */}
+            <div className="flex items-center justify-between pt-4 border-t border-slate-800">
+              <div>
+                <span className="font-semibold text-slate-300 block">Publish Final Leaderboard Results</span>
+                <span className="text-[11px] text-slate-400">Controls public access to winner positions</span>
+              </div>
               <button
                 type="button"
                 onClick={() => setResultsPublished(!resultsPublished)}
-                className={`rounded-lg px-4 py-2 text-xs font-bold ${
+                className={`rounded-xl px-4 py-2 text-xs font-bold transition ${
                   resultsPublished ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400'
                 }`}
               >
                 {resultsPublished ? 'Published ✓' : 'Hidden'}
+              </button>
+            </div>
+
+            {/* Save Settings Action Button */}
+            <div className="pt-4">
+              <button
+                type="button"
+                onClick={handleSaveSettings}
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 py-3 text-xs font-bold text-white shadow-xl hover:from-indigo-500 hover:to-violet-500 transition"
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                <span>Save Payment & QR Settings</span>
               </button>
             </div>
           </div>

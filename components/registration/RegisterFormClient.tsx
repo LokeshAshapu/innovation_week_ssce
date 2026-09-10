@@ -78,6 +78,25 @@ export function RegisterFormClient() {
 
   const [copied, setCopied] = useState(false)
 
+  // Dynamic customSettings configured from Admin Panel
+  const [customSettings, setCustomSettings] = useState<{
+    phonePeMobile?: string
+    upiId?: string
+    feeAmount?: number
+    qrCodeUrl?: string
+  } | null>(null)
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('iw2026_event_settings')
+      if (saved) {
+        setCustomSettings(JSON.parse(saved))
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }, [])
+
   // Handle Image File Upload for Payment Screenshot
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -473,16 +492,16 @@ export function RegisterFormClient() {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-6 border-b border-slate-800 pb-6">
               <div className="space-y-2 text-center sm:text-left">
                 <span className="rounded bg-indigo-500/20 px-2.5 py-1 text-xs font-mono font-bold text-indigo-300">
-                  PhonePe Mobile: 6301451462
+                  PhonePe Mobile: {customSettings?.phonePeMobile || '6301451462'}
                 </span>
                 <h3 className="text-lg font-bold text-white">Scan QR Code or Use Mobile Number</h3>
                 <p className="text-xs text-slate-400">
-                  UPI ID: <code className="text-indigo-400 font-mono font-bold">srisivani.cse@upi</code>
+                  UPI ID: <code className="text-indigo-400 font-mono font-bold">{customSettings?.upiId || 'srisivani.cse@upi'}</code>
                 </p>
                 <button
                   type="button"
                   onClick={() => {
-                    navigator.clipboard.writeText('srisivani.cse@upi')
+                    navigator.clipboard.writeText(customSettings?.upiId || 'srisivani.cse@upi')
                     setCopied(true)
                     setTimeout(() => setCopied(false), 2000)
                   }}
@@ -493,13 +512,21 @@ export function RegisterFormClient() {
                 </button>
               </div>
 
-              {/* QR Code Graphic */}
-              <div className="rounded-xl bg-white p-3 shadow-xl shrink-0">
-                <div className="h-36 w-36 bg-slate-950 text-white rounded-lg flex flex-col items-center justify-center p-2 text-center">
-                  <QrCode className="h-14 w-14 text-indigo-400 mb-1" />
-                  <span className="text-[9px] font-mono text-slate-300">Scan PhonePe QR</span>
-                  <span className="text-[8px] text-indigo-300 font-mono">₹200 / Team</span>
-                </div>
+              {/* QR Code Graphic or Custom Uploaded QR Image */}
+              <div className="rounded-xl bg-white p-2.5 shadow-xl shrink-0 border border-indigo-500/30">
+                {customSettings?.qrCodeUrl ? (
+                  <img
+                    src={customSettings.qrCodeUrl}
+                    alt="Payment QR Code"
+                    className="h-36 w-36 object-contain rounded-lg"
+                  />
+                ) : (
+                  <div className="h-36 w-36 bg-slate-950 text-white rounded-lg flex flex-col items-center justify-center p-2 text-center">
+                    <QrCode className="h-14 w-14 text-indigo-400 mb-1" />
+                    <span className="text-[9px] font-mono text-slate-300">Scan PhonePe QR</span>
+                    <span className="text-[8px] text-indigo-300 font-mono">₹{customSettings?.feeAmount || 200} / Team</span>
+                  </div>
+                )}
               </div>
             </div>
 
