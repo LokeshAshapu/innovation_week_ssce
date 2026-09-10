@@ -3,13 +3,20 @@ import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { ProgrammeScheduleClient } from '@/components/programme/ProgrammeScheduleClient'
 
+export const dynamic = 'force-dynamic'
+
 export default async function ProgrammePage() {
-  let days = await db.programmeDay.findMany({
-    orderBy: { dayNumber: 'asc' },
-    include: {
-      sessions: true,
-    },
-  })
+  let days: any[] = []
+  try {
+    days = await db.programmeDay.findMany({
+      orderBy: { dayNumber: 'asc' },
+      include: {
+        sessions: true,
+      },
+    })
+  } catch (err) {
+    console.error('Failed to query programme days:', err)
+  }
 
   // Fallback data if DB query returns empty array
   if (!days || days.length === 0) {

@@ -15,10 +15,29 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  // Find team for current user or default to AgriSense AI team
-  let team = session.teamId
-    ? await db.team.findUnique({
-        where: { id: session.teamId },
+  let team: any = null
+
+  try {
+    // Find team for current user or default to AgriSense AI team
+    team = session.teamId
+      ? await db.team.findUnique({
+          where: { id: session.teamId },
+          include: {
+            members: true,
+            payments: true,
+            ideaSubmission: true,
+            prototypeSubmission: true,
+            mvpSubmission: true,
+            pitchSubmission: true,
+            certificates: true,
+          },
+        })
+      : null
+
+    if (!team) {
+      // Fallback to first seeded team for demo viewing
+      team = await db.team.findFirst({
+        where: { teamCode: 'IW-2026-1001' },
         include: {
           members: true,
           payments: true,
@@ -29,22 +48,9 @@ export default async function DashboardPage() {
           certificates: true,
         },
       })
-    : null
-
-  if (!team) {
-    // Fallback to first seeded team for demo viewing
-    team = await db.team.findFirst({
-      where: { teamCode: 'IW-2026-1001' },
-      include: {
-        members: true,
-        payments: true,
-        ideaSubmission: true,
-        prototypeSubmission: true,
-        mvpSubmission: true,
-        pitchSubmission: true,
-        certificates: true,
-      },
-    })
+    }
+  } catch (err) {
+    console.error('Failed to query dashboard team data:', err)
   }
 
   if (!team) {

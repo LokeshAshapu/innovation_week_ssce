@@ -3,18 +3,27 @@ import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { Award, Trophy, Medal, Star, Lock, ShieldCheck } from 'lucide-react'
 
-export default async function LeaderboardPage() {
-  const settings = await db.eventSettings.findUnique({ where: { id: '1' } })
-  const resultsPublished = settings?.resultsPublished ?? true
+export const dynamic = 'force-dynamic'
 
-  const teams = await db.team.findMany({
-    where: { status: 'APPROVED' },
-    include: {
-      ideaSubmission: true,
-      evaluations: true,
-      certificates: true,
-    },
-  })
+export default async function LeaderboardPage() {
+  let settings: any = null
+  let teams: any[] = []
+
+  try {
+    settings = await db.eventSettings.findUnique({ where: { id: '1' } })
+    teams = await db.team.findMany({
+      where: { status: 'APPROVED' },
+      include: {
+        ideaSubmission: true,
+        evaluations: true,
+        certificates: true,
+      },
+    })
+  } catch (err) {
+    console.error('Failed to load leaderboard data:', err)
+  }
+
+  const resultsPublished = settings?.resultsPublished ?? true
 
   // Calculate average scores and sort teams
   const rankedTeams = teams.map((team) => {

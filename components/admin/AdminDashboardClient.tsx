@@ -26,18 +26,6 @@ import {
   Plus,
   FileSpreadsheet,
 } from 'lucide-react'
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from 'recharts'
 import { exportToCSV } from '@/lib/export'
 import { generateCertificatePDF } from '@/lib/certificates'
 
@@ -327,7 +315,7 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
             </div>
           </div>
 
-          {/* Recharts Data Visualizations */}
+          {/* Custom Data Visualizations */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             {/* Chart 1: Students by Branch */}
@@ -336,16 +324,29 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
                 <BarChart2 className="h-4 w-4 text-indigo-400" />
                 <span>Student Distribution by Branch</span>
               </h3>
-              <div className="h-64 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={branchChartData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                    <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} />
-                    <YAxis stroke="#94a3b8" fontSize={11} />
-                    <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px' }} />
-                    <Bar dataKey="students" fill="#6366f1" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+              <div className="space-y-3 pt-2">
+                {branchChartData.length > 0 ? (
+                  branchChartData.map((d) => {
+                    const maxVal = Math.max(...branchChartData.map((b) => b.students), 1)
+                    const pct = Math.round((d.students / maxVal) * 100)
+                    return (
+                      <div key={d.name} className="space-y-1">
+                        <div className="flex justify-between text-xs text-slate-300">
+                          <span className="font-bold">{d.name}</span>
+                          <span className="font-mono text-indigo-400 font-bold">{d.students} Students</span>
+                        </div>
+                        <div className="h-3 w-full rounded-full bg-slate-950 overflow-hidden border border-slate-800">
+                          <div
+                            className="h-full rounded-full bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-500 transition-all duration-500"
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                      </div>
+                    )
+                  })
+                ) : (
+                  <p className="text-xs text-slate-500">No branch data available yet.</p>
+                )}
               </div>
             </div>
 
@@ -355,16 +356,25 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
                 <Rocket className="h-4 w-4 text-violet-400" />
                 <span>Innovation Challenge Submission Progress</span>
               </h3>
-              <div className="h-64 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={submissionBarData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                    <XAxis dataKey="stage" stroke="#94a3b8" fontSize={11} />
-                    <YAxis stroke="#94a3b8" fontSize={11} />
-                    <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px' }} />
-                    <Bar dataKey="count" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+              <div className="space-y-3 pt-2">
+                {submissionBarData.map((s) => {
+                  const maxVal = Math.max(...submissionBarData.map((b) => b.count), 1)
+                  const pct = Math.round((s.count / maxVal) * 100)
+                  return (
+                    <div key={s.stage} className="space-y-1">
+                      <div className="flex justify-between text-xs text-slate-300">
+                        <span className="font-bold">{s.stage}</span>
+                        <span className="font-mono text-emerald-400 font-bold">{s.count} Submissions</span>
+                      </div>
+                      <div className="h-3 w-full rounded-full bg-slate-950 overflow-hidden border border-slate-800">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-violet-600 via-purple-500 to-emerald-400 transition-all duration-500"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             </div>
 

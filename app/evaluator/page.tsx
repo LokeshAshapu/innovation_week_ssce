@@ -13,18 +13,23 @@ export default async function EvaluatorPage() {
   // Support direct access for demo
   const currentUserRole = session?.role || 'EVALUATOR'
 
-  const teams = await db.team.findMany({
-    where: { status: 'APPROVED' },
-    include: {
-      members: true,
-      ideaSubmission: true,
-      prototypeSubmission: true,
-      mvpSubmission: true,
-      pitchSubmission: true,
-      evaluations: true,
-    },
-    orderBy: { teamCode: 'asc' },
-  })
+  let teams: any[] = []
+  try {
+    teams = await db.team.findMany({
+      where: { status: 'APPROVED' },
+      include: {
+        members: true,
+        ideaSubmission: true,
+        prototypeSubmission: true,
+        mvpSubmission: true,
+        pitchSubmission: true,
+        evaluations: true,
+      },
+      orderBy: { teamCode: 'asc' },
+    })
+  } catch (err) {
+    console.error('Failed to load evaluator teams:', err)
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">

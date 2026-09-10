@@ -3,10 +3,17 @@ import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { Bell, AlertTriangle, Info, Calendar } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 export default async function AnnouncementsPage() {
-  const announcements = await db.announcement.findMany({
-    orderBy: { createdAt: 'desc' },
-  })
+  let announcements: any[] = []
+  try {
+    announcements = await db.announcement.findMany({
+      orderBy: { createdAt: 'desc' },
+    })
+  } catch (err) {
+    console.error('Failed to fetch announcements at build/runtime:', err)
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">

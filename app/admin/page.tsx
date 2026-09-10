@@ -13,44 +13,60 @@ export default async function AdminPage() {
   // Verify role or default to admin view for demo
   const userRole = session?.role || 'ADMIN'
 
-  const [
-    totalTeams,
-    totalMembers,
-    paidTeamsCount,
-    pendingPaymentsCount,
-    ideasCount,
-    prototypesCount,
-    mvpsCount,
-    pitchesCount,
-    evaluationsCount,
-    allTeams,
-    payments,
-    settings,
-  ] = await Promise.all([
-    db.team.count(),
-    db.teamMember.count(),
-    db.team.count({ where: { paymentStatus: 'SUCCESS' } }),
-    db.team.count({ where: { paymentStatus: { in: ['PENDING', 'INITIATED', 'VERIFICATION_REQUIRED'] } } }),
-    db.ideaSubmission.count(),
-    db.prototypeSubmission.count(),
-    db.mVPSubmission.count(),
-    db.pitchSubmission.count(),
-    db.evaluation.count(),
-    db.team.findMany({
-      include: {
-        members: true,
-        payments: true,
-        ideaSubmission: true,
-        evaluations: true,
-      },
-      orderBy: { createdAt: 'desc' },
-    }),
-    db.payment.findMany({
-      include: { team: true },
-      orderBy: { createdAt: 'desc' },
-    }),
-    db.eventSettings.findUnique({ where: { id: '1' } }),
-  ])
+  let totalTeams = 0
+  let totalMembers = 0
+  let paidTeamsCount = 0
+  let pendingPaymentsCount = 0
+  let ideasCount = 0
+  let prototypesCount = 0
+  let mvpsCount = 0
+  let pitchesCount = 0
+  let evaluationsCount = 0
+  let allTeams: any[] = []
+  let payments: any[] = []
+  let settings: any = null
+
+  try {
+    const res = await Promise.all([
+      db.team.count(),
+      db.teamMember.count(),
+      db.team.count({ where: { paymentStatus: 'SUCCESS' } }),
+      db.team.count({ where: { paymentStatus: { in: ['PENDING', 'INITIATED', 'VERIFICATION_REQUIRED'] } } }),
+      db.ideaSubmission.count(),
+      db.prototypeSubmission.count(),
+      db.mVPSubmission.count(),
+      db.pitchSubmission.count(),
+      db.evaluation.count(),
+      db.team.findMany({
+        include: {
+          members: true,
+          payments: true,
+          ideaSubmission: true,
+          evaluations: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      db.payment.findMany({
+        include: { team: true },
+        orderBy: { createdAt: 'desc' },
+      }),
+      db.eventSettings.findUnique({ where: { id: '1' } }),
+    ])
+    totalTeams = res[0]
+    totalMembers = res[1]
+    paidTeamsCount = res[2]
+    pendingPaymentsCount = res[3]
+    ideasCount = res[4]
+    prototypesCount = res[5]
+    mvpsCount = res[6]
+    pitchesCount = res[7]
+    evaluationsCount = res[8]
+    allTeams = res[9]
+    payments = res[10]
+    settings = res[11]
+  } catch (err) {
+    console.error('Failed to load admin data:', err)
+  }
 
   const stats = {
     totalTeams,
