@@ -1,0 +1,261 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String       @id @default(uuid())
+  email        String       @unique
+  passwordHash String
+  name         String
+  role         String       @default("STUDENT") // STUDENT, COORDINATOR, FACULTY, EVALUATOR, ADMIN
+  teamId       String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  evaluations  Evaluation[] @relation("EvaluatorUser")
+  auditLogs    AuditLog[]
+}
+
+model Team {
+  id            String   @id @default(uuid())
+  teamCode      String   @unique // IW-2026-XXXX
+  name          String   @unique
+  size          Int      @default(4)
+  status        String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  paymentStatus String   @default("PENDING") // PENDING, INITIATED, VERIFICATION_REQUIRED, SUCCESS, FAILED, REFUNDED
+  currentStep   Int      @default(1) // 1 to 5
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  members              TeamMember[]
+  payments             Payment[]
+  ideaSubmission       IdeaSubmission?
+  prototypeSubmission  PrototypeSubmission?
+  mvpSubmission        MVPSubmission?
+  pitchSubmission      PitchSubmission?
+  evaluations          Evaluation[]
+  presentationQueue    PresentationQueue?
+  certificates         Certificate[]
+  attendanceLogs       Attendance[]
+}
+
+model TeamMember {
+  id            String   @id @default(uuid())
+  teamId        String
+  isLeader      Boolean  @default(false)
+  name          String
+  rollNumber    String   @unique
+  branch        String   // CSE, AIML, ECE, EEE, MECH, CIVIL, Diploma
+  diplomaBranch String?  // Optional text if branch == "Diploma"
+  year          String   // 1st Year, 2nd Year, 3rd Year, 4th Year
+  email         String?
+  phone         String?
+  createdAt     DateTime @default(now())
+
+  team          Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  attendance    Attendance[]
+}
+
+model Payment {
+  id            String    @id @default(uuid())
+  teamId        String
+  orderId       String    @unique
+  provider      String    // PHONEPE, UPI_INTENT, OFFLINE
+  amount        Float
+  transactionId String?
+  utr           String?
+  status        String    @default("PENDING") // PENDING, INITIATED, VERIFICATION_REQUIRED, SUCCESS, FAILED
+  receiptUrl    String?
+  verifiedAt    DateTime?
+  createdAt     DateTime  @default(now())
+
+  team          Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+model IdeaSubmission {
+  id               String   @id @default(uuid())
+  teamId           String   @unique
+  startupName      String
+  problemStatement String
+  proposedSolution String
+  targetUsers      String
+  usp              String
+  businessPotential String
+  impact           String
+  domain           String
+  techStack        String?
+  pptUrl           String?
+  status           String   @default("SUBMITTED") // DRAFT, SUBMITTED, APPROVED
+  submittedAt      DateTime @default(now())
+
+  team             Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+model PrototypeSubmission {
+  id             String   @id @default(uuid())
+  teamId         String   @unique
+  type           String   // Software, Mobile, AI/ML, IoT, Hardware, UI/UX, Mockup
+  description    String
+  techStack      String
+  githubUrl      String?
+  demoUrl        String?
+  fileUrl        String?
+  screenshots    String?
+  mentorFeedback String?
+  submittedAt    DateTime @default(now())
+
+  team           Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+model MVPSubmission {
+  id                String   @id @default(uuid())
+  teamId            String   @unique
+  description       String
+  features          String
+  currentUsers      String?
+  validationResults String
+  improvements      String?
+  demoUrl           String?
+  repoUrl           String?
+  mvpFileUrl        String?
+  submittedAt       DateTime @default(now())
+
+  team              Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+model PitchSubmission {
+  id                String   @id @default(uuid())
+  teamId            String   @unique
+  startupName       String
+  problem           String
+  solution          String
+  targetCustomer    String
+  marketOpportunity String
+  competitors       String
+  usp               String
+  revenueModel      String
+  futureScope       String
+  impact            String
+  pitchDeckUrl      String?
+  submittedAt       DateTime @default(now())
+
+  team              Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+model Evaluation {
+  id             String   @id @default(uuid())
+  teamId         String
+  evaluatorId    String
+  evaluatorName  String
+  scoreInnovation Float   // Max 20
+  scoreProblem    Float   // Max 15
+  scoreTechnical  Float   // Max 15
+  scoreMVP        Float   // Max 20
+  scoreMarket     Float   // Max 15
+  scoreTeamwork   Float   // Max 10
+  scoreImpact     Float   // Max 5
+  totalScore      Float   // Max 100
+  feedback        String?
+  submittedAt     DateTime @default(now())
+
+  team           Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  evaluator      User     @relation("EvaluatorUser", fields: [evaluatorId], references: [id])
+}
+
+model PresentationQueue {
+  id                String   @id @default(uuid())
+  teamId            String   @unique
+  presentationOrder Int      @default(0)
+  status            String   @default("WAITING") // WAITING, PRESENTING, COMPLETED, SKIPPED
+  timerStartedAt    DateTime?
+  timerDuration     Int      @default(180) // 180 seconds (2m presentation + 1m Q&A)
+  isPaused          Boolean  @default(false)
+  updatedAt         DateTime @updatedAt
+
+  team              Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+model Announcement {
+  id         String   @id @default(uuid())
+  title      String
+  content    String
+  priority   String   @default("NORMAL") // URGENT, NORMAL, LOW
+  targetRole String   @default("ALL")    // ALL, STUDENT, EVALUATOR, FACULTY
+  createdBy  String
+  createdAt  DateTime @default(now())
+}
+
+model ProgrammeDay {
+  id        String             @id @default(uuid())
+  dayNumber Int                @unique
+  title     String
+  theme     String
+  date      String
+  sessions  ProgrammeSession[]
+}
+
+model ProgrammeSession {
+  id             String       @id @default(uuid())
+  dayId          String
+  timeSlot       String
+  sessionTitle   String
+  activityDetails String
+  responsibility String
+  expectedOutput String
+
+  day            ProgrammeDay @relation(fields: [dayId], references: [id], onDelete: Cascade)
+}
+
+model Certificate {
+  id          String   @id @default(uuid())
+  teamId      String
+  studentName String
+  rollNumber  String
+  awardType   String   // PARTICIPATION, WINNER, RUNNER_UP, SECOND_RUNNER_UP, BEST_INNOVATION, BEST_TECH, BEST_IMPACT
+  certCode    String   @unique
+  issuedAt    DateTime @default(now())
+
+  team        Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+model EventSettings {
+  id               String  @id @default("1")
+  eventName        String  @default("Innovation Week 2026")
+  collegeName      String  @default("Sri Sivani College of Engineering (Autonomous), Srikakulam")
+  deptName         String  @default("Department of CSE & AI-ML")
+  regFee           Float   @default(500)
+  upiId            String  @default("srisivani.cse@upi")
+  recipientName    String  @default("Sri Sivani Innovation Week")
+  phonePeEnabled   Boolean @default(true)
+  regOpen          Boolean @default(true)
+  resultsPublished Boolean @default(false)
+}
+
+model Attendance {
+  id         String     @id @default(uuid())
+  teamId     String
+  memberId   String
+  dayNumber  Int
+  status     String     @default("PRESENT") // PRESENT, ABSENT, LATE
+  markedAt   DateTime   @default(now())
+
+  team       Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  member     TeamMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  entity    String
+  entityId  String?
+  details   String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+}
