@@ -1,4 +1,4 @@
-export const ORGANIZER_WHATSAPP_NUMBER = '919876543210' // Default Student Coordinator WhatsApp
+export const ORGANIZER_WHATSAPP_NUMBER = '916301451462' // Student Lead Coordinator WhatsApp
 
 export interface WhatsAppQueryInput {
   name: string

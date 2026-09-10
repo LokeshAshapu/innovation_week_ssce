@@ -259,7 +259,7 @@ export function RegisterFormClient() {
               required={isLeader}
               value={state.phone}
               onChange={(e) => setState({ ...state, phone: e.target.value })}
-              placeholder="e.g. 9876543210"
+              placeholder="e.g. 6301451462"
               className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none"
             />
           </div>
@@ -473,7 +473,7 @@ export function RegisterFormClient() {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-6 border-b border-slate-800 pb-6">
               <div className="space-y-2 text-center sm:text-left">
                 <span className="rounded bg-indigo-500/20 px-2.5 py-1 text-xs font-mono font-bold text-indigo-300">
-                  PhonePe Mobile: 9876543210
+                  PhonePe Mobile: 6301451462
                 </span>
                 <h3 className="text-lg font-bold text-white">Scan QR Code or Use Mobile Number</h3>
                 <p className="text-xs text-slate-400">

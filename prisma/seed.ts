@@ -598,7 +598,7 @@ async function main() {
               diplomaBranch: tData.diplomaBranch,
               year: tData.year,
               email: userEmail,
-              phone: '9876543210',
+              phone: '6301451462',
             },
             {
               isLeader: false,
