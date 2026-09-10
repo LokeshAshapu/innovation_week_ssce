@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Rocket, ShieldCheck, UserCheck, AlertCircle, CheckCircle2, QrCode, CreditCard, ArrowRight, RefreshCw, Copy, Check, FileSpreadsheet, ExternalLink, Banknote, Upload, Image as ImageIcon, Mail } from 'lucide-react'
 import { BRANCHES, YEARS } from '@/lib/types'
