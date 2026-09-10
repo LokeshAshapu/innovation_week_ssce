@@ -65,7 +65,7 @@ export function Footer() {
         <div className="mt-12 border-t border-slate-900 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-400">
           <p>© 2026 Department of CSE & AI-ML, Sri Sivani College of Engineering. All rights reserved.</p>
           <div className="flex gap-4">
-            <Link href="/login" className="hover:text-white transition">Staff & Jury Login</Link>
+            <Link href="/login" className="hover:text-white transition">Admin Portal Login</Link>
             <span>•</span>
             <Link href="/register" className="hover:text-white transition">Team Registration</Link>
           </div>
