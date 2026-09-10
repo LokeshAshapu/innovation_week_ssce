@@ -61,8 +61,8 @@ export default async function DashboardPage() {
     )
   }
 
-  const leader = team.members.find((m) => m.isLeader) || team.members[0]
-  const payment = team.payments[0]
+  const leader = team.members.find((m: any) => m.isLeader) || team.members[0]
+  const payment = team.payments?.[0]
 
   // Calculate progress step (1 to 5)
   let currentStep = 1
@@ -285,7 +285,7 @@ export default async function DashboardPage() {
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {team.members.map((m) => (
+            {team.members.map((m: any) => (
               <div key={m.id} className="rounded-xl bg-slate-950 p-4 border border-slate-800 space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-white text-sm">{m.name}</span>

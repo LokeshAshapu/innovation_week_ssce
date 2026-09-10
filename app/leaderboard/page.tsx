@@ -26,10 +26,10 @@ export default async function LeaderboardPage() {
   const resultsPublished = settings?.resultsPublished ?? true
 
   // Calculate average scores and sort teams
-  const rankedTeams = teams.map((team) => {
+  const rankedTeams = teams.map((team: any) => {
     const totalEv = team.evaluations.length
     const avgScore = totalEv > 0
-      ? team.evaluations.reduce((sum, ev) => sum + ev.totalScore, 0) / totalEv
+      ? team.evaluations.reduce((sum: number, ev: any) => sum + ev.totalScore, 0) / totalEv
       : 0
     const topAward = team.certificates[0]?.awardType || (avgScore > 90 ? 'WINNER' : avgScore > 85 ? 'RUNNER_UP' : 'PARTICIPATION')
 
