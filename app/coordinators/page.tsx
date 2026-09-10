@@ -5,13 +5,14 @@ import { Footer } from '@/components/Footer'
 export default function CoordinatorsPage() {
   const studentCoordinators = [
     { name: 'A. Lokesh', role: 'Student Lead Coordinator', day: 'Day 1 Coordinator' },
-    { name: 'P. Hareesh', role: 'Student Co-Coordinator', day: 'Day 1 Coordinator' },
+    { name: 'K. Hareesh', role: 'Student Co-Coordinator', day: 'Day 1 Coordinator' },
     { name: 'B. Yogeswari', role: 'Student Coordinator', day: 'Day 2 Coordinator' },
     { name: 'K. Raghavendra', role: 'Student Coordinator', day: 'Day 2 Coordinator' },
     { name: 'P. Sony', role: 'Student Coordinator', day: 'Day 3 Coordinator' },
     { name: 'R. Dileep Kumar', role: 'Student Coordinator', day: 'Day 3 Coordinator' },
     { name: 'B. Amrutha', role: 'Student Coordinator', day: 'Day 4 Coordinator' },
     { name: 'Rami Naidu', role: 'Student Coordinator', day: 'Day 4 Coordinator' },
+    { name: 'V. Aravind', role: 'Student Coordinator', day: 'Event Operations' },
     { name: 'K. Sharvan', role: 'Student Coordinator', day: 'Event Operations' },
     { name: 'B. Prasad', role: 'Media Coordinator', day: 'Media & Documentation' },
   ]
@@ -25,7 +26,7 @@ export default function CoordinatorsPage() {
   ]
 
   const dayWiseMap = [
-    { day: 'Day 1', focus: 'Inaugural & Awareness', leads: 'A. Lokesh & P. Hareesh' },
+    { day: 'Day 1', focus: 'Inaugural & Awareness', leads: 'A. Lokesh & K. Hareesh' },
     { day: 'Day 2', focus: 'Startup Idea Presentation', leads: 'B. Yogeswari & K. Raghavendra' },
     { day: 'Day 3', focus: 'Prototype Development', leads: 'P. Sony & R. Dileep Kumar' },
     { day: 'Day 4', focus: 'MVP Development & Pitch', leads: 'B. Amrutha & Rami Naidu' },

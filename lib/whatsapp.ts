@@ -48,7 +48,7 @@ Sri Sivani College of Engineering (Autonomous), Srikakulam. Main Seminar Hall & 
 
   if (query.includes('coordinator') || query.includes('contact') || query.includes('help')) {
     return `📞 *Student & Faculty Coordinators*
-Student Leads: A. Lokesh & P. Hareesh
+Student Leads: A. Lokesh & K. Hareesh
 Media Coordinator: B. Prasad
 Faculty Lead: Prof. Janaki Bhai Madam (Dept of CSE & AI-ML)`
   }

@@ -318,7 +318,7 @@ export function RegisterFormClient() {
               <Banknote className="h-4 w-4" /> To Confirm Your Spot:
             </strong>
             <p>
-              Please pay <strong>₹{registeredData.amount} cash</strong> to the Student Lead Coordinators (A. Lokesh & P. Hareesh) or at the CSE Department Desk.
+              Please pay <strong>₹{registeredData.amount} cash</strong> to the Student Coordinators.
             </p>
           </div>
         )}
@@ -459,7 +459,7 @@ export function RegisterFormClient() {
               <Banknote className="h-4 w-4" /> Cash Payment Spot Reservation
             </h3>
             <p className="leading-relaxed">
-              Upon clicking proceed below, your team spot will be reserved. To confirm your spot, please pay <strong>₹200 cash</strong> to Student Lead Coordinators (A. Lokesh & P. Hareesh) or at the CSE Department Desk.
+              Upon clicking proceed below, your team spot will be reserved. To confirm your spot, please pay <strong>₹200 cash</strong> to the Student Coordinators.
             </p>
             <p className="text-[11px] text-amber-400 font-mono pt-1">
               ✉️ An official confirmation mail will be automatically sent from <strong>lokeshashapu@gmail.com</strong> to all team member emails.

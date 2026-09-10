@@ -54,7 +54,7 @@ export function Footer() {
           <div>
             <h4 className="font-semibold text-white text-sm mb-3">Key Coordinators</h4>
             <ul className="space-y-1.5 text-slate-400">
-              <li><strong className="text-slate-200">Student Leads:</strong> A. Lokesh & P. Hareesh</li>
+              <li><strong className="text-slate-200">Student Leads:</strong> A. Lokesh & K. Hareesh</li>
               <li><strong className="text-slate-200">Media Lead:</strong> B. Prasad</li>
               <li><strong className="text-slate-200">Faculty Lead:</strong> Prof. Janaki Bhai Madam</li>
               <li><strong className="text-slate-200">Jury Partner:</strong> Ratan Tata Innovation Hub</li>

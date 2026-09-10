@@ -15,7 +15,7 @@ export function ProgrammePreview() {
       theme: 'Understanding Entrepreneurship, Innovation and the Startup Ecosystem',
       date: 'Day 1 (Monday)',
       sessions: [
-        { time: '9:30 AM', title: 'Gathering & Attendance', lead: 'A. Lokesh & P. Hareesh', output: '100% Attendance & Registration' },
+        { time: '9:30 AM', title: 'Gathering & Attendance', lead: 'A. Lokesh & K. Hareesh', output: '100% Attendance & Registration' },
         { time: '10:40 AM', title: 'Expert Keynote Talk', lead: 'Guest Founder', output: 'Entrepreneurial Inspiration' },
         { time: '11:05 AM', title: 'Startup Ecosystem Session', lead: 'Incubator Lead', output: 'Ratan Tata Hub Guidelines' },
       ],

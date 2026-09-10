@@ -111,7 +111,7 @@ export async function sendRegistrationEmail({
             ${
               isCash
                 ? `<strong>⚠️ Action Required to Confirm Your Spot:</strong><br>
-                   You selected <strong>Cash Payment</strong>. To confirm your spot, please pay <strong>₹${amount}</strong> in cash to student coordinators (A. Lokesh & P. Hareesh) or at the CSE Department Desk.`
+                   You selected <strong>Cash Payment</strong>. To confirm your spot, please pay <strong>₹${amount}</strong> in cash to the Student Coordinators.`
                 : `<strong>✅ Payment Submitted:</strong><br>
                    You selected <strong>PhonePe / UPI Payment</strong> (₹${amount}). Your UTR reference number and payment screenshot have been received and sent for verification.`
             }

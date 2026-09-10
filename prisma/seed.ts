@@ -99,7 +99,7 @@ async function main() {
             timeSlot: '9:30–9:40 AM',
             sessionTitle: 'Gathering & Attendance',
             activityDetails: 'Students assemble in seminar hall; attendance and registration',
-            responsibility: 'Student Coordinators (A. Lokesh & P. Hareesh)',
+            responsibility: 'Student Coordinators (A. Lokesh & K. Hareesh)',
             expectedOutput: '100% Student Presence & Registration Verification',
           },
           {
@@ -430,7 +430,7 @@ async function main() {
     {
       code: 'IW-2026-1002',
       name: 'NeuroHealth Bot',
-      leaderName: 'P. Hareesh',
+      leaderName: 'K. Hareesh',
       leaderRoll: '22AI1A0502',
       branch: 'AIML',
       year: '3rd Year',

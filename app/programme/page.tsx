@@ -28,7 +28,7 @@ export default async function ProgrammePage() {
         theme: 'Understanding Entrepreneurship, Innovation and the Startup Ecosystem',
         date: 'Day 1 (Monday)',
         sessions: [
-          { id: 's1', dayId: 'day-1', timeSlot: '9:30–9:40 AM', sessionTitle: 'Gathering & Attendance', activityDetails: 'Students assemble in seminar hall; attendance and registration', responsibility: 'Student Coordinators (A. Lokesh & P. Hareesh)', expectedOutput: '100% Student Presence & Registration Verification' },
+          { id: 's1', dayId: 'day-1', timeSlot: '9:30–9:40 AM', sessionTitle: 'Gathering & Attendance', activityDetails: 'Students assemble in seminar hall; attendance and registration', responsibility: 'Student Coordinators (A. Lokesh & K. Hareesh)', expectedOutput: '100% Student Presence & Registration Verification' },
           { id: 's2', dayId: 'day-1', timeSlot: '10:40–11:00 AM', sessionTitle: 'Expert Keynote Talk', activityDetails: 'Interactive session by entrepreneur/startup founder', responsibility: 'Guest Speaker', expectedOutput: 'Inspiration & mind-shift towards problem solving' },
           { id: 's3', dayId: 'day-1', timeSlot: '11:05–11:35 AM', sessionTitle: 'Startup Ecosystem Session', activityDetails: 'Incubation centers, funding, mentors, and Ratan Tata Hub support', responsibility: 'Incubator Lead', expectedOutput: 'Knowledge of Ratan Tata Innovation Hub & Startup India schemes' },
         ],
