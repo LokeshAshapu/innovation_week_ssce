@@ -1,8 +1,7 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
-import { Rocket, ShieldCheck, Users, UserCheck, Tv, ArrowRight, Sparkles, Building2, Lightbulb } from 'lucide-react'
+import { Rocket, ShieldCheck, Users, UserCheck, ArrowRight, Sparkles, Building2, Lightbulb } from 'lucide-react'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { CustomCursor } from '@/components/ui/CustomCursor'
@@ -12,7 +11,6 @@ import { InnovationChallengeSection } from '@/components/innovation/InnovationCh
 import { EvaluationSection } from '@/components/evaluation/EvaluationSection'
 import { ProgrammePreview } from '@/components/programme/ProgrammePreview'
 import { StartupDashboardPreview } from '@/components/dashboard/StartupDashboardPreview'
-import { LiveEventProjectorModal } from '@/components/live/LiveEventProjectorModal'
 import { TiltCard } from '@/components/ui/TiltCard'
 
 export default function HomePage() {
@@ -41,17 +39,6 @@ export default function HomePage() {
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white">
       <CustomCursor />
       <Navbar />
-
-      {/* Floating Projector Mode Launcher Button */}
-      <div className="fixed bottom-6 right-6 z-40">
-        <button
-          onClick={() => setLiveModeOpen(true)}
-          className="flex items-center gap-2 rounded-2xl border border-indigo-500/40 bg-slate-900/90 px-4 py-3 text-xs font-bold text-indigo-300 shadow-2xl backdrop-blur-md transition hover:scale-105 hover:bg-slate-800 hover:text-white"
-        >
-          <Tv className="h-4 w-4 text-amber-400" />
-          <span>Launch Projector Stage Mode</span>
-        </button>
-      </div>
 
       {/* 1. HERO SECTION WITH 3D SCENE & STATS */}
       <InnovationHero />
