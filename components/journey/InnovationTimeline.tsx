@@ -10,7 +10,7 @@ export function InnovationTimeline() {
       day: 'Day 1',
       title: 'LEARN',
       theme: 'Entrepreneurship & Inspiration',
-      desc: 'Entrepreneurship awareness, incubation ecosystem briefing, guest keynote, and 4-5 member team formation.',
+      desc: 'Entrepreneurship awareness, incubation ecosystem briefing, guest keynote, and 3-4 member team formation.',
       time: '9:30 AM – 12:50 PM',
       output: 'Teams formed & problem domains identified',
       coordinator: 'A. Lokesh & P. Hareesh',

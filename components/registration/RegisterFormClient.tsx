@@ -46,20 +46,11 @@ export function RegisterFormClient() {
     email: '',
     phone: '',
   })
+  const [hasMember4, setHasMember4] = useState(false)
   const [member4, setMember4] = useState<MemberState>({
     name: '',
     rollNumber: '',
     branch: 'ECE',
-    diplomaBranch: '',
-    year: '3rd Year',
-    email: '',
-    phone: '',
-  })
-  const [hasMember5, setHasMember5] = useState(false)
-  const [member5, setMember5] = useState<MemberState>({
-    name: '',
-    rollNumber: '',
-    branch: 'EEE',
     diplomaBranch: '',
     year: '3rd Year',
     email: '',
@@ -91,8 +82,7 @@ export function RegisterFormClient() {
         leader,
         member2,
         member3,
-        member4,
-        ...(hasMember5 ? { member5 } : {}),
+        ...(hasMember4 ? { member4 } : {}),
       }
 
       const res = await fetch('/api/register', {
@@ -377,7 +367,7 @@ export function RegisterFormClient() {
           <div className="space-y-1">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Registration Amount</span>
             <p className="text-4xl font-black text-emerald-400">₹{registeredData.amount}</p>
-            <p className="text-[11px] text-slate-400">Covers full team participation (4–5 students)</p>
+            <p className="text-[11px] text-slate-400">Covers full team participation (3–4 students)</p>
           </div>
 
           <div className="pt-2">
@@ -487,23 +477,20 @@ export function RegisterFormClient() {
       {/* Member 3 */}
       {renderMemberInputs('4. Team Member 3 (Required)', member3, setMember3)}
 
-      {/* Member 4 */}
-      {renderMemberInputs('5. Team Member 4 (Required)', member4, setMember4)}
-
-      {/* Member 5 Optional Toggle */}
+      {/* Member 4 Optional Toggle */}
       <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-slate-300">6. Team Member 5 (Optional)</span>
+          <span className="text-xs font-bold text-slate-300">5. Team Member 4 (Optional)</span>
           <button
             type="button"
-            onClick={() => setHasMember5(!hasMember5)}
+            onClick={() => setHasMember4(!hasMember4)}
             className="text-xs font-semibold text-indigo-400 hover:underline"
           >
-            {hasMember5 ? '- Remove Member 5' : '+ Add 5th Member'}
+            {hasMember4 ? '- Remove Member 4' : '+ Add 4th Member'}
           </button>
         </div>
 
-        {hasMember5 && renderMemberInputs('Member 5 Details', member5, setMember5)}
+        {hasMember4 && renderMemberInputs('Member 4 Details', member4, setMember4)}
       </div>
 
       {/* Submit Button */}

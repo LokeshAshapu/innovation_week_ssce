@@ -388,7 +388,7 @@ async function main() {
     data: [
       {
         title: '🚀 Innovation Week 2026 Registration Open!',
-        content: 'Form your team of 4 to 5 members and register before the deadline. Fee is ₹500 per team.',
+        content: 'Form your team of 3 to 4 members and register before the deadline. Fee is ₹200 per team.',
         priority: 'URGENT',
         targetRole: 'ALL',
         createdBy: 'Admin',

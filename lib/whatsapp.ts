@@ -17,7 +17,7 @@ export function processWhatsAppBotMessage(userMsg: string): string {
 
   if (query.includes('fee') || query.includes('amount') || query.includes('cost') || query.includes('payment') || query.includes('phonepe')) {
     return `💰 *Innovation Week 2026 Registration Fee & Payment Info*
-Registration Fee: ₹200 per team (4-5 members).
+Registration Fee: ₹200 per team (3-4 members).
 Payment methods supported: PhonePe, GPay, Paytm, or UPI ID: srisivani.cse@upi.
 After payment, enter your UTR number on the website to confirm registration!`
   }
@@ -38,7 +38,7 @@ Diploma students are fully eligible! During registration, select "Diploma" under
 
   if (query.includes('size') || query.includes('member') || query.includes('team')) {
     return `👥 *Team Requirements*
-Each team must consist of 4 to 5 students (1 Team Leader + 3 or 4 Members). Students can be from CSE, AIML, ECE, EEE, MECH, CIVIL, or Diploma.`
+Each team must consist of 3 to 4 students (1 Team Leader + 2 or 3 Members). Students can be from CSE, AIML, ECE, EEE, MECH, CIVIL, or Diploma.`
   }
 
   if (query.includes('venue') || query.includes('location') || query.includes('college')) {

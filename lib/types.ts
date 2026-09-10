@@ -48,8 +48,7 @@ export const TeamRegistrationSchema = z.object({
   leader: TeamMemberSchema,
   member2: TeamMemberSchema,
   member3: TeamMemberSchema,
-  member4: TeamMemberSchema,
-  member5: TeamMemberSchema.optional(),
+  member4: TeamMemberSchema.optional(),
 })
 
 export type TeamRegistrationInput = z.infer<typeof TeamRegistrationSchema>

@@ -16,7 +16,7 @@ export default function EventJourneyPage() {
         'Formal inauguration & event rules walkthrough',
         'Expert keynote talk by guest entrepreneur/founder',
         'Startup Ecosystem briefing (Incubation, Ratan Tata Hub, funding schemes)',
-        'Team formation (4-5 members) & domain identification',
+        'Team formation (3-4 members) & domain identification',
       ],
       output: 'Teams formed, problem domains chosen, prepared for Day 2 pitch',
     },

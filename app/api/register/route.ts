@@ -17,12 +17,12 @@ export async function POST(request: Request) {
       )
     }
 
-    const { teamName, leader, member2, member3, member4, member5 } = validationResult.data
+    const { teamName, leader, member2, member3, member4 } = validationResult.data
 
-    // Collect all members into an array
-    const membersList = [leader, member2, member3, member4]
-    if (member5 && member5.name && member5.rollNumber) {
-      membersList.push(member5)
+    // Collect all members into an array (minimum 3, maximum 4)
+    const membersList = [leader, member2, member3]
+    if (member4 && member4.name && member4.rollNumber) {
+      membersList.push(member4)
     }
 
     // 2. Duplicate Team Name Check
