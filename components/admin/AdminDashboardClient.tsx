@@ -72,6 +72,13 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
   const [resultsPublished, setResultsPublished] = useState(settings?.resultsPublished ?? true)
   const [settingsSavedMsg, setSettingsSavedMsg] = useState<string | null>(null)
 
+  // Demo Certificate State
+  const [demoStudentName, setDemoStudentName] = useState('A. LOKESH')
+  const [demoRollNumber, setDemoRollNumber] = useState('22CSE0501')
+  const [demoTeamName, setDemoTeamName] = useState('Tech Innovators')
+  const [demoStartupName, setDemoStartupName] = useState('AgriSense AI')
+  const [demoAwardType, setDemoAwardType] = useState('WINNER')
+
   // Load custom settings from localStorage if available
   useEffect(() => {
     try {
@@ -706,38 +713,136 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
 
       {/* SECTION 30: CERTIFICATES */}
       {activeTab === 'CERTIFICATES' && (
-        <div className="space-y-6">
-          <h2 className="text-lg font-bold text-white">Bulk Certificate Generator</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {teams.slice(0, 6).map((t) => (
-              <div key={t.id} className="rounded-xl border border-slate-800 bg-slate-900 p-5 space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="font-mono text-xs text-indigo-400 font-bold">{t.teamCode}</span>
-                  <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded">
-                    WINNER
-                  </span>
-                </div>
-                <h3 className="font-bold text-white text-sm">{t.members[0]?.name}</h3>
-                <p className="text-xs text-slate-400">Team: {t.name}</p>
-                <button
-                  onClick={() => {
-                    const doc = generateCertificatePDF({
-                      studentName: t.members[0]?.name || 'Student',
-                      rollNumber: t.members[0]?.rollNumber || '22CS1A0501',
-                      teamName: t.name,
-                      startupName: t.ideaSubmission?.startupName,
-                      awardType: 'WINNER',
-                      certCode: `CERT-IW26-${t.teamCode.split('-')[2]}-01`,
-                    })
-                    doc.save(`Certificate_${t.members[0]?.name}.pdf`)
-                  }}
-                  className="w-full flex items-center justify-center gap-2 rounded-lg bg-indigo-600 py-2 text-xs font-bold text-white hover:bg-indigo-500"
-                >
-                  <Award className="h-4 w-4" />
-                  <span>Download PDF Certificate</span>
-                </button>
+        <div className="space-y-8 max-w-4xl mx-auto">
+          
+          {/* Custom Demo Certificate Generator Card */}
+          <div className="rounded-3xl border border-indigo-500/40 bg-gradient-to-br from-indigo-950/80 via-slate-900 to-slate-950 p-6 sm:p-8 space-y-6 shadow-2xl backdrop-blur-xl">
+            <div className="flex items-center gap-3 border-b border-indigo-500/20 pb-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 shadow-lg">
+                <Award className="h-6 w-6" />
               </div>
-            ))}
+              <div>
+                <h2 className="text-xl font-extrabold text-white">Instant Demo Certificate Generator</h2>
+                <p className="text-xs text-indigo-300">Generate and download a high-resolution PDF certificate for demonstration</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div>
+                <label className="block font-semibold text-slate-300 mb-1">Student Name</label>
+                <input
+                  type="text"
+                  value={demoStudentName}
+                  onChange={(e) => setDemoStudentName(e.target.value)}
+                  placeholder="e.g. A. LOKESH"
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-white focus:border-indigo-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-slate-300 mb-1">Roll Number</label>
+                <input
+                  type="text"
+                  value={demoRollNumber}
+                  onChange={(e) => setDemoRollNumber(e.target.value)}
+                  placeholder="e.g. 22CSE0501"
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-white focus:border-indigo-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-slate-300 mb-1">Team Name</label>
+                <input
+                  type="text"
+                  value={demoTeamName}
+                  onChange={(e) => setDemoTeamName(e.target.value)}
+                  placeholder="e.g. Tech Innovators"
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-white focus:border-indigo-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-slate-300 mb-1">Startup Venture Name</label>
+                <input
+                  type="text"
+                  value={demoStartupName}
+                  onChange={(e) => setDemoStartupName(e.target.value)}
+                  placeholder="e.g. AgriSense AI"
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-white focus:border-indigo-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block font-semibold text-slate-300 mb-1">Award / Category Title</label>
+                <select
+                  value={demoAwardType}
+                  onChange={(e) => setDemoAwardType(e.target.value)}
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-white focus:border-indigo-500 focus:outline-none"
+                >
+                  <option value="WINNER">FIRST PLACE WINNER</option>
+                  <option value="RUNNER_UP">RUNNER-UP AWARD</option>
+                  <option value="SECOND_RUNNER_UP">SECOND RUNNER-UP AWARD</option>
+                  <option value="BEST_INNOVATION">BEST INNOVATION AWARD</option>
+                  <option value="BEST_TECH">BEST TECHNICAL SOLUTION</option>
+                  <option value="BEST_IMPACT">BEST SOCIAL & ECONOMIC IMPACT</option>
+                  <option value="PARTICIPATION">OUTSTANDING PARTICIPATION</option>
+                </select>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                const doc = generateCertificatePDF({
+                  studentName: demoStudentName || 'Demo Student',
+                  rollNumber: demoRollNumber || '22CS1A0501',
+                  teamName: demoTeamName || 'Demo Team',
+                  startupName: demoStartupName || 'Demo Startup Venture',
+                  awardType: demoAwardType,
+                  certCode: `CERT-IW26-DEMO-${Math.floor(1000 + Math.random() * 9000)}`,
+                  issuedDate: '2026-09-10',
+                })
+                doc.save(`Demo_Certificate_${(demoStudentName || 'Student').replace(/\s+/g, '_')}.pdf`)
+              }}
+              className="w-full flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-indigo-600 py-3.5 text-xs font-black text-white shadow-xl hover:scale-[1.01] transition"
+            >
+              <Download className="h-4 w-4" />
+              <span>Generate & Download Demo PDF Certificate</span>
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-lg font-bold text-white">Registered Teams Certificate Quick Download</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {teams.slice(0, 6).map((t) => (
+                <div key={t.id} className="rounded-xl border border-slate-800 bg-slate-900 p-5 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="font-mono text-xs text-indigo-400 font-bold">{t.teamCode}</span>
+                    <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded">
+                      WINNER
+                    </span>
+                  </div>
+                  <h3 className="font-bold text-white text-sm">{t.members[0]?.name}</h3>
+                  <p className="text-xs text-slate-400">Team: {t.name}</p>
+                  <button
+                    onClick={() => {
+                      const doc = generateCertificatePDF({
+                        studentName: t.members[0]?.name || 'Student',
+                        rollNumber: t.members[0]?.rollNumber || '22CS1A0501',
+                        teamName: t.name,
+                        startupName: t.ideaSubmission?.startupName,
+                        awardType: 'WINNER',
+                        certCode: `CERT-IW26-${t.teamCode.split('-')[2]}-01`,
+                      })
+                      doc.save(`Certificate_${t.members[0]?.name}.pdf`)
+                    }}
+                    className="w-full flex items-center justify-center gap-2 rounded-lg bg-indigo-600 py-2 text-xs font-bold text-white hover:bg-indigo-500"
+                  >
+                    <Award className="h-4 w-4" />
+                    <span>Download PDF Certificate</span>
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}

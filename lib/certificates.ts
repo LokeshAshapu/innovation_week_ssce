@@ -53,7 +53,7 @@ export function generateCertificatePDF(data: CertificateData) {
 
   doc.setFontSize(11)
   doc.setTextColor(100, 116, 139)
-  doc.text('INNOVATION WEEK 2026 — "From Idea to Startup"', width / 2, 70, { align: 'center' })
+  doc.text('INNOVATION WEEK 2026 — "Build, Pitch & Win Big"', width / 2, 70, { align: 'center' })
 
   // Recipient Line
   doc.setFont('helvetica', 'normal')
