@@ -172,6 +172,28 @@ export async function POST(request: Request) {
       })
       .catch((err) => console.error('Email import error:', err))
 
+    // Save registration backup JSON for Vercel persistence
+    try {
+      const fs = await import('fs')
+      const backupPath = '/tmp/registrations_backup.json'
+      let existingBackup: any[] = []
+      if (fs.existsSync(backupPath)) {
+        existingBackup = JSON.parse(fs.readFileSync(backupPath, 'utf8') || '[]')
+      }
+      existingBackup.push({
+        teamCode,
+        teamName: teamName.trim(),
+        paymentMethod,
+        utr: utr || null,
+        screenshotData,
+        membersList,
+        createdAt: new Date().toISOString(),
+      })
+      fs.writeFileSync(backupPath, JSON.stringify(existingBackup, null, 2))
+    } catch (bErr) {
+      console.warn('Backup save note:', bErr)
+    }
+
     return NextResponse.json({
       success: true,
       teamId: team.id,
