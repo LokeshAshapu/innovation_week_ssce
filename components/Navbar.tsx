@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { Rocket, ShieldCheck, Menu, X, MessageSquare, Lock } from 'lucide-react'
+import { Rocket, ShieldCheck, Menu, X, MessageSquare } from 'lucide-react'
 import { WhatsAppQueryModal } from '@/components/WhatsAppQueryModal'
 
 export function Navbar() {
@@ -38,24 +38,28 @@ export function Navbar() {
   return (
     <>
       <header className="sticky top-0 z-40 w-full border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5 sm:px-6 lg:px-8">
           
-          {/* Brand Logo with Triple-Click Secret Admin Login */}
+          {/* Brand Logo with Sri Sivani College Emblem & Secret Admin Login */}
           <Link
             href="/"
             onClick={handleLogoClick}
-            className="flex items-center gap-2.5 transition-opacity hover:opacity-90 shrink-0 select-none cursor-pointer"
-            title="Triple-click for Admin Access"
+            className="flex items-center gap-3 transition-opacity hover:opacity-95 shrink-0 select-none cursor-pointer group"
+            title="Sri Sivani College of Engineering • Triple-click for Admin Access"
           >
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 shadow-lg shadow-indigo-500/30">
-              <Rocket className="h-4 w-4 text-white" />
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-white p-1 shadow-md shadow-indigo-500/20 border border-indigo-400/40 transition group-hover:scale-105">
+              <img
+                src="/images/sivani_logo.png"
+                alt="Sri Sivani College of Engineering Emblem"
+                className="h-full w-full object-contain"
+              />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="font-black tracking-tight text-white text-sm sm:text-base">INNOVATION WEEK</span>
                 <span className="rounded bg-indigo-500/20 px-1.5 py-0.5 text-[10px] font-bold text-indigo-400 border border-indigo-500/30">2026</span>
               </div>
-              <p className="text-[10px] font-medium text-slate-400 hidden sm:block">Sri Sivani College of Engineering</p>
+              <p className="text-[10px] font-semibold text-slate-400 hidden sm:block">Sri Sivani College of Engineering (Autonomous)</p>
             </div>
           </Link>
 

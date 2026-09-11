@@ -13,6 +13,8 @@ import { ProgrammePreview } from '@/components/programme/ProgrammePreview'
 import { StartupDashboardPreview } from '@/components/dashboard/StartupDashboardPreview'
 import { TiltCard } from '@/components/ui/TiltCard'
 
+import { SivaniCampusShowcase } from '@/components/campus/SivaniCampusShowcase'
+
 export default function HomePage() {
   const studentCoordinators = [
     { name: 'A. Lokesh', role: 'Student Lead Coordinator', day: 'Day 1 Lead' },
@@ -41,8 +43,11 @@ export default function HomePage() {
       <CustomCursor />
       <Navbar />
 
-      {/* 1. HERO SECTION WITH 3D SCENE & STATS */}
+      {/* 1. HERO SECTION WITH CAMPUS BACKGROUND & STATS */}
       <InnovationHero />
+
+      {/* 2. SRI SIVANI COLLEGE CAMPUS & INSTITUTION SHOWCASE */}
+      <SivaniCampusShowcase />
 
       {/* 2. EVENT JOURNEY TIMELINE */}
       <InnovationTimeline />

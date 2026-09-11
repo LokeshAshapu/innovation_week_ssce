@@ -38,9 +38,12 @@ export default function CoordinatorsPage() {
 
       <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 space-y-12">
         <div className="text-center space-y-4 max-w-3xl mx-auto">
-          <span className="rounded-full bg-indigo-500/10 px-3.5 py-1 text-xs font-semibold text-indigo-400 border border-indigo-500/20">
-            Event Organizing Team
-          </span>
+          <div className="inline-flex items-center gap-2 rounded-full border border-indigo-400/30 bg-indigo-500/10 px-4 py-1.5 text-xs font-bold text-indigo-300 backdrop-blur-md">
+            <div className="h-4 w-4 rounded-full bg-white p-0.5 shrink-0 flex items-center justify-center">
+              <img src="/images/sivani_logo.png" alt="Sri Sivani Logo" className="h-full w-full object-contain" />
+            </div>
+            <span>SRI SIVANI COLLEGE ORGANIZING TEAM</span>
+          </div>
           <h1 className="text-3xl font-extrabold text-white sm:text-5xl">
             Coordinators & Jury Panel
           </h1>
