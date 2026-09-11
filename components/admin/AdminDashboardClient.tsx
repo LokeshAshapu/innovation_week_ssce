@@ -25,6 +25,10 @@ import {
   X,
   Plus,
   FileSpreadsheet,
+  Mail,
+  Send,
+  RefreshCw,
+  AlertCircle,
 } from 'lucide-react'
 import { exportToCSV } from '@/lib/export'
 import { generateCertificatePDF } from '@/lib/certificates'
@@ -81,6 +85,32 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
   const [demoTeamName, setDemoTeamName] = useState('Tech Innovators')
   const [demoStartupName, setDemoStartupName] = useState('AgriSense AI')
   const [demoAwardType, setDemoAwardType] = useState('WINNER')
+
+  // Certificate Dispatch State
+  const [isDispatchingCerts, setIsDispatchingCerts] = useState(false)
+  const [certDispatchResult, setCertDispatchResult] = useState<any>(null)
+  const [certDispatchError, setCertDispatchError] = useState<string | null>(null)
+
+  const handleTriggerCertificateEmails = async () => {
+    setIsDispatchingCerts(true)
+    setCertDispatchError(null)
+    setCertDispatchResult(null)
+
+    try {
+      const res = await fetch('/api/admin/send-certificates', { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) {
+        setCertDispatchError(data.error || 'Failed to send certificate emails.')
+      } else {
+        setCertDispatchResult(data)
+      }
+    } catch (err) {
+      console.error(err)
+      setCertDispatchError('Network error while triggering certificate emails.')
+    } finally {
+      setIsDispatchingCerts(false)
+    }
+  }
 
   // Load custom settings from localStorage if available
   useEffect(() => {
@@ -794,6 +824,103 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
       {activeTab === 'CERTIFICATES' && (
         <div className="space-y-8 max-w-4xl mx-auto">
           
+          {/* Automated Certificate Dispatch Card (Sept 25 Evening) */}
+          <div className="rounded-3xl border border-emerald-500/40 bg-gradient-to-br from-slate-900 via-emerald-950/40 to-slate-950 p-6 sm:p-8 space-y-6 shadow-2xl backdrop-blur-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-emerald-500/20 pb-5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-slate-950 shadow-lg">
+                  <Mail className="h-6 w-6" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-extrabold text-white flex items-center gap-2">
+                    <span>Automated Certificate Email Dispatch</span>
+                  </h2>
+                  <p className="text-xs text-emerald-300">
+                    Dispatches official certificates to all registered student emails via lokeshashapu@gmail.com
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-2 text-xs font-bold text-emerald-400 shrink-0">
+                <Clock className="h-4 w-4" />
+                <span>Scheduled: Sept 25, 2026 • 5:00 PM IST</span>
+              </div>
+            </div>
+
+            <div className="rounded-2xl bg-slate-950/80 p-5 border border-slate-800 space-y-3 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-300 font-semibold">Event Completion Auto-Trigger:</span>
+                <span className="text-emerald-400 font-bold bg-emerald-500/10 px-2.5 py-1 rounded border border-emerald-500/20">
+                  Active & Ready
+                </span>
+              </div>
+              <p className="text-slate-400 text-[11px] leading-relaxed">
+                Clicking the button below will generate unique certificate verification codes (<code className="text-indigo-400">CERT-IW2026-XXXX</code>) for all team members, save them to the database, and send personalized HTML certificate emails to every student email address.
+              </p>
+            </div>
+
+            {certDispatchError && (
+              <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-xs text-rose-300 flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <span>{certDispatchError}</span>
+              </div>
+            )}
+
+            {certDispatchResult && (
+              <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-5 space-y-3 text-xs text-emerald-200">
+                <div className="flex items-center justify-between border-b border-emerald-500/20 pb-2 font-bold text-white text-sm">
+                  <span>Dispatch Completed! 🎉</span>
+                  <span>{new Date(certDispatchResult.timestamp).toLocaleTimeString()}</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center font-mono">
+                  <div className="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+                    <div className="text-slate-400 text-[10px]">Total Teams</div>
+                    <div className="text-white text-base font-bold">{certDispatchResult.summary?.totalTeams}</div>
+                  </div>
+                  <div className="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+                    <div className="text-slate-400 text-[10px]">Students</div>
+                    <div className="text-white text-base font-bold">{certDispatchResult.summary?.totalStudents}</div>
+                  </div>
+                  <div className="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+                    <div className="text-slate-400 text-[10px]">Certs Created</div>
+                    <div className="text-indigo-400 text-base font-bold">{certDispatchResult.summary?.certsGenerated}</div>
+                  </div>
+                  <div className="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+                    <div className="text-slate-400 text-[10px]">Emails Sent</div>
+                    <div className="text-emerald-400 text-base font-bold">{certDispatchResult.summary?.emailsSent}</div>
+                  </div>
+                </div>
+
+                <div className="max-h-40 overflow-y-auto space-y-1 font-mono text-[11px] pt-2 border-t border-emerald-500/20">
+                  {certDispatchResult.results?.map((r: any, idx: number) => (
+                    <div key={idx} className="flex justify-between py-0.5 border-b border-slate-800/50">
+                      <span className="text-slate-300">{r.studentName} ({r.rollNumber})</span>
+                      <span className={r.status.startsWith('SENT') ? 'text-emerald-400' : 'text-amber-400'}>{r.status}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={handleTriggerCertificateEmails}
+              disabled={isDispatchingCerts}
+              className="w-full flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 py-4 text-xs font-black text-white shadow-xl hover:scale-[1.01] transition disabled:opacity-50"
+            >
+              {isDispatchingCerts ? (
+                <>
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  <span>Sending Certificate Emails to All Students...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4" />
+                  <span>Send Certificate Emails to All Students Now (1-Click Trigger)</span>
+                </>
+              )}
+            </button>
+          </div>
+
           {/* Custom Demo Certificate Generator Card */}
           <div className="rounded-3xl border border-indigo-500/40 bg-gradient-to-br from-indigo-950/80 via-slate-900 to-slate-950 p-6 sm:p-8 space-y-6 shadow-2xl backdrop-blur-xl">
             <div className="flex items-center gap-3 border-b border-indigo-500/20 pb-4">

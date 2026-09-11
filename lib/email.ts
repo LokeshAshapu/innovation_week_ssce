@@ -216,3 +216,150 @@ export async function sendRegistrationEmail({
     return { success: false, error: String(error) }
   }
 }
+
+export interface SendCertificateEmailParams {
+  studentName: string
+  rollNumber: string
+  teamName: string
+  email: string
+  awardType: string
+  certCode: string
+  startupName?: string
+}
+
+export async function sendCertificateEmail({
+  studentName,
+  rollNumber,
+  teamName,
+  email,
+  awardType,
+  certCode,
+  startupName,
+}: SendCertificateEmailParams) {
+  if (!email || !email.includes('@')) {
+    return { success: false, reason: 'Invalid or missing email address' }
+  }
+
+  const awardTitleMap: Record<string, string> = {
+    WINNER: '🏆 1st Place Winner Award',
+    RUNNER_UP: '🥈 Runner-Up Award',
+    SECOND_RUNNER_UP: '🥉 2nd Runner-Up Award',
+    BEST_INNOVATION: '💡 Best Innovation Award',
+    BEST_TECH: '⚙️ Best Technical Solution Award',
+    BEST_IMPACT: '🌍 Best Social & Economic Impact Award',
+    BEST_BUSINESS: '📈 Best Business Model Award',
+    BEST_PROTOTYPE: '🛠️ Best Working Prototype Award',
+    PARTICIPATION: '📜 Certificate of Outstanding Participation',
+  }
+
+  const awardTitle = awardTitleMap[awardType] || '📜 Certificate of Outstanding Participation'
+  const subject = `[Innovation Week 2026] Official Certificate — ${studentName} (${certCode})`
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #090d16; color: #e2e8f0; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: #0f172a; border-radius: 16px; border: 1px solid #1e293b; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
+        .header { background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding: 32px 24px; text-align: center; }
+        .header h1 { margin: 0; color: #ffffff; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+        .header p { margin: 6px 0 0; color: #dbeafe; font-size: 12px; }
+        .content { padding: 28px 24px; }
+        .cert-badge { display: inline-block; padding: 8px 16px; font-size: 13px; font-weight: 800; border-radius: 20px; background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); margin-bottom: 20px; text-align: center; }
+        .card { background-color: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; margin-bottom: 20px; }
+        .field-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #334155; font-size: 13px; }
+        .field-row:last-child { border-bottom: none; }
+        .field-label { color: #94a3b8; }
+        .field-value { font-weight: 700; color: #ffffff; }
+        .btn { display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%); color: #ffffff !important; padding: 12px 24px; text-decoration: none; font-weight: 700; font-size: 13px; border-radius: 10px; text-align: center; margin-top: 12px; }
+        .footer { text-align: center; padding: 20px; border-top: 1px solid #1e293b; font-size: 11px; color: #64748b; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Sri Sivani Innovation Week 2026</h1>
+          <p>Dept of CSE & AI-ML • Sri Sivani College of Engineering (Autonomous)</p>
+        </div>
+
+        <div class="content">
+          <div style="text-align: center;">
+            <div class="cert-badge">${awardTitle}</div>
+          </div>
+
+          <h2 style="font-size: 18px; color: #ffffff; margin-top: 0; text-align: center;">
+            Congratulations, ${studentName}! 🎉
+          </h2>
+
+          <p style="font-size: 13px; color: #cbd5e1; text-align: center; margin-bottom: 24px; line-height: 1.6;">
+            We are pleased to present your official <strong>Certificate of Recognition</strong> for active participation and innovation in <strong>Innovation Week 2026</strong>.
+          </p>
+
+          <div class="card">
+            <div class="field-row">
+              <span class="field-label">Student Name:</span>
+              <span class="field-value">${studentName}</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Roll Number:</span>
+              <span class="field-value" style="font-family: monospace;">${rollNumber}</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Team Name:</span>
+              <span class="field-value">${teamName}</span>
+            </div>
+            ${startupName ? `<div class="field-row"><span class="field-label">Startup Venture:</span><span class="field-value">${startupName}</span></div>` : ''}
+            <div class="field-row">
+              <span class="field-label">Award Category:</span>
+              <span class="field-value" style="color: #fbbf24;">${awardTitle}</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Verification Code:</span>
+              <span class="field-value" style="color: #818cf8; font-family: monospace;">${certCode}</span>
+            </div>
+          </div>
+
+          <div style="text-align: center; margin-top: 24px;">
+            <p style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;">
+              Log in to your Team Dashboard to view and download your high-resolution PDF certificate:
+            </p>
+            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard" class="btn">
+              Download Certificate PDF →
+            </a>
+          </div>
+        </div>
+
+        <div class="footer">
+          <p>Sent by <strong>lokeshashapu@gmail.com</strong> on behalf of Dept of CSE & AI-ML</p>
+          <p>Sri Sivani College of Engineering (Autonomous), Srikakulam</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+
+  try {
+    if (!process.env.SMTP_USER && !process.env.GMAIL_APP_PASSWORD) {
+      console.log(`[Email Mock Service] Certificate Email created for ${email}:`, {
+        subject,
+        certCode,
+      })
+      return { success: true, mock: true, recipient: email }
+    }
+
+    const info = await transporter.sendMail({
+      from: `"Sri Sivani Innovation Week" <${SENDER_EMAIL}>`,
+      to: email,
+      subject,
+      html: htmlContent,
+    })
+
+    return { success: true, messageId: info.messageId, recipient: email }
+  } catch (error) {
+    console.error('[Certificate Email Service Error]', error)
+    return { success: false, error: String(error) }
+  }
+}
+

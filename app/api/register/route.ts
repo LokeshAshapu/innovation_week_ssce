@@ -181,8 +181,9 @@ export async function POST(request: Request) {
     })
   } catch (error) {
     console.error('Registration server error:', error)
+    const detailedMessage = error instanceof Error ? error.message : String(error)
     return NextResponse.json(
-      { error: 'Registration server processing error. Please try submitting again.' },
+      { error: `Registration error: ${detailedMessage}` },
       { status: 500 }
     )
   }
