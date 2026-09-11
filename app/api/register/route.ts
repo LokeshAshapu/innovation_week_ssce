@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { db, ensureTablesExist } from '@/lib/db'
 import { TeamRegistrationSchema } from '@/lib/types'
 import { createSession } from '@/lib/auth'
 
 export async function POST(request: Request) {
   try {
+    await ensureTablesExist()
     const body = await request.json()
 
     // Clean body if member4 is empty or not filled

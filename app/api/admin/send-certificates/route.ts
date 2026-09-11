@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { db, ensureTablesExist } from '@/lib/db'
 import { sendCertificateEmail } from '@/lib/email'
 
 export async function POST(request: Request) {
   try {
+    await ensureTablesExist()
     const teams = await db.team.findMany({
       include: {
         members: true,

@@ -24,6 +24,7 @@ yarn-error.log*
 *.db
 *.db-journal
 prisma/*.db
+!prisma/dev.db
 prisma/*.db-journal
 storage.db
 storage.db-journal
