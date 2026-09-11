@@ -39,22 +39,35 @@ export interface FormattedExcelRow {
 
 export function formatTeamsForExcel(teams: any[]): FormattedExcelRow[] {
   return teams.map((team, idx) => {
-    const leader = team.members?.find((m: any) => m.role === 'LEADER') || team.members?.[0] || {}
-    const member2 = team.members?.find((m: any) => m.role === 'MEMBER_2') || team.members?.[1] || {}
-    const member3 = team.members?.find((m: any) => m.role === 'MEMBER_3') || team.members?.[2] || {}
-    const member4 = team.members?.find((m: any) => m.role === 'MEMBER_4') || team.members?.[3] || {}
-    const member5 = team.members?.find((m: any) => m.role === 'MEMBER_5') || team.members?.[4] || {}
+    const members = team.members || []
+    const leader = members.find((m: any) => m.isLeader) || members[0] || {}
+    const nonLeaders = members.filter((m: any) => !m.isLeader)
+    const member2 = nonLeaders[0] || {}
+    const member3 = nonLeaders[1] || {}
+    const member4 = nonLeaders[2] || {}
+    const member5 = nonLeaders[3] || {}
 
     const payment = team.payments?.[0] || {}
+    const isCash = payment.provider === 'OFFLINE_CASH' || team.paymentStatus === 'CASH_PENDING'
+    const paymentMethodText = isCash ? 'CASH PAYMENT' : 'PHONEPE / UPI'
+    const formattedPaymentStatus = isCash
+      ? (team.paymentStatus === 'SUCCESS' || team.paymentStatus === 'VERIFIED' ? 'CASH PAID & CONFIRMED' : 'CASH PENDING')
+      : (team.paymentStatus === 'SUCCESS' || team.paymentStatus === 'VERIFIED' ? 'PHONEPE VERIFIED' : 'PHONEPE VERIFICATION REQUIRED')
+
+    const startupName = team.ideaSubmission?.startupName || team.pitchSubmission?.startupName || 'N/A'
+    const certCode = team.certificates?.[0]?.certCode || 'NOT ISSUED'
 
     return {
       'S.No': idx + 1,
       'Registration Timestamp': team.createdAt ? new Date(team.createdAt).toLocaleString('en-IN') : '',
       'Team Code': team.teamCode || '',
       'Team Name': team.name || '',
-      'Payment Status': team.paymentStatus === 'PAID' ? 'PAID & VERIFIED' : team.paymentStatus || 'PENDING',
+      'Payment Option': paymentMethodText,
+      'Payment Status': formattedPaymentStatus,
       'Payment Amount (INR)': payment.amount || 200,
-      'Transaction UTR / Ref No': payment.utrNumber || 'N/A',
+      'Transaction UTR / Ref No': payment.utr || payment.utrNumber || (isCash ? 'OFFLINE CASH' : 'N/A'),
+      'Startup Venture Name': startupName,
+      'Certificate Code': certCode,
       'Team Leader Name': leader.name || '',
       'Leader Roll No': leader.rollNumber || '',
       'Leader Branch': leader.branch || '',

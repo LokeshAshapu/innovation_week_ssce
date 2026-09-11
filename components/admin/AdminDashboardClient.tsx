@@ -29,6 +29,7 @@ import {
   Send,
   RefreshCw,
   AlertCircle,
+  Trash2,
 } from 'lucide-react'
 import { exportToCSV } from '@/lib/export'
 import { generateCertificatePDF } from '@/lib/certificates'
@@ -257,6 +258,48 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
       }
     } catch (e) {
       console.error(e)
+    }
+  }
+
+  // Dummy Teams Purge Handlers
+  const handlePurgeDummyTeams = async () => {
+    if (!confirm('Are you sure you want to purge all 10 seed dummy teams? Real registrations will be kept.')) return
+    try {
+      const res = await fetch('/api/admin/clear-dummy-teams', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ purgeAllSeed: true }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        alert(data.message || 'Dummy teams purged successfully.')
+        window.location.reload()
+      } else {
+        alert(data.error || 'Failed to purge dummy teams.')
+      }
+    } catch (e) {
+      console.error(e)
+      alert('Network error while purging dummy teams.')
+    }
+  }
+
+  const handleDeleteSingleTeam = async (teamId: string, teamName: string) => {
+    if (!confirm(`Are you sure you want to delete team "${teamName}"?`)) return
+    try {
+      const res = await fetch('/api/admin/clear-dummy-teams', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teamId }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        window.location.reload()
+      } else {
+        alert(data.error || 'Failed to delete team.')
+      }
+    } catch (e) {
+      console.error(e)
+      alert('Network error while deleting team.')
     }
   }
 
@@ -538,6 +581,14 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
               >
                 <Download className="h-3.5 w-3.5" />
                 <span>Export CSV</span>
+              </button>
+
+              <button
+                onClick={handlePurgeDummyTeams}
+                className="flex items-center gap-1.5 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-xs font-bold text-rose-300 hover:bg-rose-500/20"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                <span>Purge Dummy Teams</span>
               </button>
             </div>
           </div>

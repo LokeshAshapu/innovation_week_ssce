@@ -3,15 +3,31 @@ import nodemailer from 'nodemailer'
 export const SENDER_EMAIL = 'lokeshashapu@gmail.com'
 
 // Nodemailer Transporter Setup
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: Number(process.env.SMTP_PORT || 587),
-  secure: process.env.SMTP_SECURE === 'true', // true for 465, false for 587
-  auth: {
-    user: process.env.SMTP_USER || SENDER_EMAIL,
-    pass: process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD || '',
-  },
-})
+const getTransporter = () => {
+  const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER || SENDER_EMAIL
+  const smtpPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD || ''
+
+  if (process.env.SMTP_HOST) {
+    return nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT || 587),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: { user: smtpUser, pass: smtpPass },
+      tls: { rejectUnauthorized: false },
+    })
+  }
+
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: smtpUser,
+      pass: smtpPass,
+    },
+    tls: { rejectUnauthorized: false },
+  })
+}
+
+const transporter = getTransporter()
 
 export interface EmailMember {
   name: string
