@@ -66,9 +66,9 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
 
   // Settings state
   const [feeAmount, setFeeAmount] = useState(settings?.regFee || 200)
-  const [upiId, setUpiId] = useState(settings?.upiId || 'srisivani.cse@upi')
-  const [phonePeMobile, setPhonePeMobile] = useState('6301451462')
-  const [qrCodeUrl, setQrCodeUrl] = useState('')
+  const [upiId, setUpiId] = useState(settings?.upiId || '8790846260@axl')
+  const [phonePeMobile, setPhonePeMobile] = useState('8790846260')
+  const [qrCodeUrl, setQrCodeUrl] = useState('/images/phonepe_qr.jpg')
   const [resultsPublished, setResultsPublished] = useState(settings?.resultsPublished ?? true)
   const [settingsSavedMsg, setSettingsSavedMsg] = useState<string | null>(null)
 

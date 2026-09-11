@@ -1,27 +1,33 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { TeamRegistrationSchema } from '@/lib/types'
-import { PaymentService } from '@/lib/payment'
 import { createSession } from '@/lib/auth'
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
 
+    // Clean body if member4 is empty or not filled
+    const cleanBody = { ...body }
+    if (cleanBody.member4 && (!cleanBody.member4.name || !cleanBody.member4.name.trim())) {
+      delete cleanBody.member4
+    }
+
     // 1. Zod schema validation
-    const validationResult = TeamRegistrationSchema.safeParse(body)
+    const validationResult = TeamRegistrationSchema.safeParse(cleanBody)
     if (!validationResult.success) {
+      const errorMsg = validationResult.error.issues.map((i) => i.message).join(' • ')
       return NextResponse.json(
-        { error: 'Invalid form data', details: validationResult.error.flatten() },
+        { error: errorMsg || 'Please complete all required fields for Team Leader, Member 2, and Member 3.' },
         { status: 400 }
       )
     }
 
     const { teamName, leader, member2, member3, member4 } = validationResult.data
 
-    // Collect all members into an array (minimum 3, maximum 4)
+    // Collect all valid members into an array (3 or 4 members)
     const membersList = [leader, member2, member3]
-    if (member4 && member4.name && member4.rollNumber) {
+    if (member4 && member4.name && member4.name.trim() && member4.rollNumber && member4.rollNumber.trim()) {
       membersList.push(member4)
     }
 
@@ -32,7 +38,7 @@ export async function POST(request: Request) {
 
     if (existingTeam) {
       return NextResponse.json(
-        { error: `Team name "${teamName}" is already registered. Please choose a unique team name.` },
+        { error: `Team name "${teamName.trim()}" is already registered. Please choose a unique team name.` },
         { status: 400 }
       )
     }
@@ -42,7 +48,7 @@ export async function POST(request: Request) {
     const uniqueRollsInSubmission = new Set(rollNumbers)
     if (uniqueRollsInSubmission.size !== rollNumbers.length) {
       return NextResponse.json(
-        { error: 'Duplicate roll numbers found within your team members.' },
+        { error: 'Duplicate roll numbers found within your team members list.' },
         { status: 400 }
       )
     }
@@ -70,7 +76,7 @@ export async function POST(request: Request) {
       teamCode = `IW-2026-${codeNum}`
     }
 
-    // 6. Create User Account for Team Leader
+    // 6. Create or retrieve User Account for Team Leader
     const leaderEmail = leader.email && leader.email.trim() !== ''
       ? leader.email.trim().toLowerCase()
       : `${teamName.toLowerCase().replace(/[^a-z0-9]/g, '')}@student.srisivani.ac.in`
@@ -80,7 +86,7 @@ export async function POST(request: Request) {
       user = await db.user.create({
         data: {
           email: leaderEmail,
-          name: leader.name,
+          name: leader.name.trim(),
           passwordHash: 'student123',
           role: 'STUDENT',
         },
@@ -110,10 +116,10 @@ export async function POST(request: Request) {
             name: m.name.trim(),
             rollNumber: m.rollNumber.trim().toUpperCase(),
             branch: m.branch,
-            diplomaBranch: m.branch === 'Diploma' ? m.diplomaBranch : null,
+            diplomaBranch: m.branch === 'Diploma' ? (m.diplomaBranch || null) : null,
             year: m.year,
-            email: m.email || null,
-            phone: m.phone || null,
+            email: m.email ? m.email.trim() : null,
+            phone: m.phone ? m.phone.trim() : null,
           })),
         },
       },
@@ -123,14 +129,18 @@ export async function POST(request: Request) {
     await db.user.update({
       where: { id: user.id },
       data: { teamId: team.id },
-    })
+    }).catch((err) => console.warn('User link note:', err))
 
     // Auto-login team leader session
-    await createSession(user.id)
+    try {
+      await createSession(user.id)
+    } catch (sessionErr) {
+      console.warn('Session creation note:', sessionErr)
+    }
 
     // 8. Create Payment Record
     const orderId = `ORD-${teamCode}-${Date.now().toString().slice(-4)}`
-    const payment = await db.payment.create({
+    await db.payment.create({
       data: {
         teamId: team.id,
         orderId,
@@ -144,19 +154,22 @@ export async function POST(request: Request) {
       },
     })
 
-    // 9. Dispatch Styled Confirmation Email from lokeshashapu@gmail.com
-    const { sendRegistrationEmail } = await import('@/lib/email')
-    await sendRegistrationEmail({
-      teamName: teamName.trim(),
-      teamCode,
-      paymentMethod: isCash ? 'CASH' : 'PHONEPE',
-      utr: utr || undefined,
-      receiptUrl: screenshotData || undefined,
-      members: membersList,
-      amount: regFee,
-    }).catch((emailErr) => {
-      console.error('Failed to send confirmation email:', emailErr)
-    })
+    // 9. Dispatch Styled Confirmation Email asynchronously in background (Non-blocking)
+    import('@/lib/email')
+      .then(({ sendRegistrationEmail }) => {
+        sendRegistrationEmail({
+          teamName: teamName.trim(),
+          teamCode,
+          paymentMethod: isCash ? 'CASH' : 'PHONEPE',
+          utr: utr || undefined,
+          receiptUrl: screenshotData || undefined,
+          members: membersList,
+          amount: regFee,
+        }).catch((emailErr) => {
+          console.error('Failed to send confirmation email:', emailErr)
+        })
+      })
+      .catch((err) => console.error('Email import error:', err))
 
     return NextResponse.json({
       success: true,
@@ -169,7 +182,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Registration server error:', error)
     return NextResponse.json(
-      { error: 'Server error during team registration. Please try again.' },
+      { error: 'Registration server processing error. Please try submitting again.' },
       { status: 500 }
     )
   }

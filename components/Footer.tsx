@@ -6,7 +6,7 @@ export function Footer() {
     <footer className="border-t border-slate-800 bg-slate-950 text-slate-400 text-xs">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
-          
+
           {/* Col 1: About */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
@@ -54,7 +54,7 @@ export function Footer() {
           <div>
             <h4 className="font-semibold text-white text-sm mb-3">Key Coordinators</h4>
             <ul className="space-y-1.5 text-slate-400">
-              <li><strong className="text-slate-200">Student Leads:</strong> A. Lokesh & K. Hareesh</li>
+              <li><strong className="text-slate-200">All Student Leads</strong> </li>
               <li><strong className="text-slate-200">Media Lead:</strong> B. Prasad</li>
               <li><strong className="text-slate-200">Faculty Lead:</strong> Prof. Janaki Bhai Madam</li>
               <li><strong className="text-slate-200">Jury Partner:</strong> Ratan Tata Innovation Hub</li>

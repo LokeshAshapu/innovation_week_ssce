@@ -18,7 +18,7 @@ export function processWhatsAppBotMessage(userMsg: string): string {
   if (query.includes('fee') || query.includes('amount') || query.includes('cost') || query.includes('payment') || query.includes('phonepe')) {
     return `💰 *Innovation Week 2026 Registration Fee & Payment Info*
 Registration Fee: ₹200 per team (3-4 members).
-Payment methods supported: PhonePe, GPay, Paytm, or UPI ID: srisivani.cse@upi.
+Payment methods supported: PhonePe, GPay, Paytm, or UPI ID: 8790846260@axl (Mobile: 8790846260).
 After payment, enter your UTR number on the website to confirm registration!`
   }
 
