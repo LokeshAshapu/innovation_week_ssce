@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
-import { db } from '@/lib/db'
+import { db, ensureTablesExist } from '@/lib/db'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { AdminDashboardClient } from '@/components/admin/AdminDashboardClient'
@@ -27,6 +27,7 @@ export default async function AdminPage() {
   let settings: any = null
 
   try {
+    await ensureTablesExist()
     const res = await Promise.all([
       db.team.count(),
       db.teamMember.count(),

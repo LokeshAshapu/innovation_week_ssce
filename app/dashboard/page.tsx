@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { getSession } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
-import { db } from '@/lib/db'
+import { db, ensureTablesExist } from '@/lib/db'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { Rocket, CheckCircle2, Clock, Calendar, Lightbulb, Cpu, Target, Award, ArrowRight, UserCheck, ShieldCheck } from 'lucide-react'
@@ -18,6 +18,7 @@ export default async function DashboardPage() {
   let team: any = null
 
   try {
+    await ensureTablesExist()
     // Find team for current user or default to AgriSense AI team
     team = session.teamId
       ? await db.team.findUnique({
