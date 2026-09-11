@@ -31,7 +31,7 @@ async function main() {
       eventName: 'Innovation Week 2026',
       collegeName: 'Sri Sivani College of Engineering (Autonomous), Srikakulam',
       deptName: 'Department of CSE & AI-ML',
-      regFee: 500,
+      regFee: 200,
       upiId: 'srisivani.cse@upi',
       recipientName: 'Sri Sivani Innovation Week',
       phonePeEnabled: true,

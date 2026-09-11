@@ -62,9 +62,13 @@ export async function POST(request: Request) {
       )
     }
 
-    // 5. Create Team Code (IW-2026-XXXX)
-    const count = await db.team.count()
-    const teamCode = `IW-2026-${1001 + count}`
+    // 5. Create Team Code (IW-2026-XXXX) with collision check
+    let codeNum = 1001 + (await db.team.count())
+    let teamCode = `IW-2026-${codeNum}`
+    while (await db.team.findUnique({ where: { teamCode } })) {
+      codeNum++
+      teamCode = `IW-2026-${codeNum}`
+    }
 
     // 6. Create User Account for Team Leader
     const leaderEmail = leader.email && leader.email.trim() !== ''
@@ -83,6 +87,14 @@ export async function POST(request: Request) {
       })
     }
 
+    const { paymentMethod = 'PHONEPE', utr, receiptUrl, screenshotData: screenshotBody } = body
+    const screenshotData = screenshotBody || receiptUrl || null
+    const isCash = paymentMethod === 'CASH'
+    const regFee = Number(process.env.NEXT_PUBLIC_REGISTRATION_FEE || 200)
+
+    const initialPaymentStatus = isCash ? 'CASH_PENDING' : 'VERIFICATION_REQUIRED'
+    const initialPaymentRecordStatus = isCash ? 'PENDING' : 'VERIFICATION_REQUIRED'
+
     // 7. Create Team in DB
     const team = await db.team.create({
       data: {
@@ -90,7 +102,7 @@ export async function POST(request: Request) {
         name: teamName.trim(),
         size: membersList.length,
         status: 'PENDING',
-        paymentStatus: 'PENDING',
+        paymentStatus: initialPaymentStatus,
         currentStep: 1,
         members: {
           create: membersList.map((m, idx) => ({
@@ -116,11 +128,6 @@ export async function POST(request: Request) {
     // Auto-login team leader session
     await createSession(user.id)
 
-    const { paymentMethod = 'PHONEPE', utr, receiptUrl } = body
-
-    const isCash = paymentMethod === 'CASH'
-    const regFee = Number(process.env.NEXT_PUBLIC_REGISTRATION_FEE || 200)
-
     // 8. Create Payment Record
     const orderId = `ORD-${teamCode}-${Date.now().toString().slice(-4)}`
     const payment = await db.payment.create({
@@ -130,18 +137,10 @@ export async function POST(request: Request) {
         provider: isCash ? 'OFFLINE_CASH' : 'PHONEPE_UPI',
         amount: regFee,
         utr: utr || null,
-        receiptUrl: receiptUrl || null,
-        status: isCash ? 'PENDING' : 'SUCCESS',
-        verifiedAt: isCash ? null : new Date(),
-      },
-    })
-
-    // Update Team Payment Status
-    await db.team.update({
-      where: { id: team.id },
-      data: {
-        paymentStatus: isCash ? 'CASH_PENDING' : 'SUCCESS',
-        currentStep: isCash ? 1 : 2,
+        receiptUrl: screenshotData,
+        screenshotData,
+        status: initialPaymentRecordStatus,
+        verifiedAt: null,
       },
     })
 
@@ -152,7 +151,7 @@ export async function POST(request: Request) {
       teamCode,
       paymentMethod: isCash ? 'CASH' : 'PHONEPE',
       utr: utr || undefined,
-      receiptUrl: receiptUrl || undefined,
+      receiptUrl: screenshotData || undefined,
       members: membersList,
       amount: regFee,
     }).catch((emailErr) => {

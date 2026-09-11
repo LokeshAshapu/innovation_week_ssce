@@ -72,6 +72,9 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
   const [resultsPublished, setResultsPublished] = useState(settings?.resultsPublished ?? true)
   const [settingsSavedMsg, setSettingsSavedMsg] = useState<string | null>(null)
 
+  // Payment screenshot preview modal
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
+
   // Demo Certificate State
   const [demoStudentName, setDemoStudentName] = useState('A. LOKESH')
   const [demoRollNumber, setDemoRollNumber] = useState('22CSE0501')
@@ -178,6 +181,23 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
   const handleApprovePayment = async (paymentId: string) => {
     try {
       const res = await fetch('/api/payment/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentId }),
+      })
+      if (res.ok) {
+        window.location.reload()
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  // Payment Reject handler
+  const handleRejectPayment = async (paymentId: string) => {
+    if (!confirm('Are you sure you want to reject this payment record?')) return
+    try {
+      const res = await fetch('/api/payment/reject', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ paymentId }),
@@ -562,41 +582,100 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
                     <th className="p-3.5">Amount</th>
                     <th className="p-3.5">Provider</th>
                     <th className="p-3.5">UTR / Txn ID</th>
+                    <th className="p-3.5">Screenshot</th>
                     <th className="p-3.5">Status</th>
                     <th className="p-3.5">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800 text-slate-300">
-                  {payments.map((p) => (
-                    <tr key={p.id} className="hover:bg-slate-800/40">
-                      <td className="p-3.5 font-mono text-indigo-400 font-bold">{p.orderId}</td>
-                      <td className="p-3.5 font-bold text-white">{p.team?.name}</td>
-                      <td className="p-3.5 font-bold text-emerald-400">₹{p.amount}</td>
-                      <td className="p-3.5 text-slate-400">{p.provider}</td>
-                      <td className="p-3.5 font-mono text-slate-300">{p.utr || p.transactionId || 'Pending UTR'}</td>
-                      <td className="p-3.5">
-                        <span className={`rounded px-2 py-0.5 text-[10px] font-bold ${
-                          p.status === 'SUCCESS' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
-                        }`}>
-                          {p.status}
-                        </span>
-                      </td>
-                      <td className="p-3.5">
-                        {p.status !== 'SUCCESS' ? (
-                          <button
-                            onClick={() => handleApprovePayment(p.id)}
-                            className="rounded bg-emerald-600 px-3 py-1 text-[11px] font-bold text-white hover:bg-emerald-500"
-                          >
-                            Approve Payment ✓
-                          </button>
-                        ) : (
-                          <span className="text-emerald-400 font-bold text-[11px]">Verified ✓</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                  {payments.map((p) => {
+                    const img = p.screenshotData || p.receiptUrl
+                    return (
+                      <tr key={p.id} className="hover:bg-slate-800/40">
+                        <td className="p-3.5 font-mono text-indigo-400 font-bold">{p.orderId}</td>
+                        <td className="p-3.5 font-bold text-white">{p.team?.name}</td>
+                        <td className="p-3.5 font-bold text-emerald-400">₹{p.amount}</td>
+                        <td className="p-3.5 text-slate-400">{p.provider}</td>
+                        <td className="p-3.5 font-mono text-slate-300">{p.utr || p.transactionId || 'Pending UTR'}</td>
+                        <td className="p-3.5">
+                          {img ? (
+                            <button
+                              onClick={() => setPreviewImage(img)}
+                              className="group relative flex items-center gap-1.5 rounded bg-slate-800 px-2 py-1 text-[11px] text-indigo-300 hover:bg-indigo-900/40 border border-slate-700 hover:border-indigo-500/50 transition"
+                            >
+                              <img src={img} alt="Receipt" className="h-5 w-5 rounded object-cover" />
+                              <span className="font-semibold">View Screenshot 🖼️</span>
+                            </button>
+                          ) : (
+                            <span className="text-slate-500 italic text-[11px]">No image</span>
+                          )}
+                        </td>
+                        <td className="p-3.5">
+                          <span className={`rounded px-2 py-0.5 text-[10px] font-bold ${
+                            p.status === 'SUCCESS'
+                              ? 'bg-emerald-500/20 text-emerald-400'
+                              : p.status === 'FAILED'
+                              ? 'bg-rose-500/20 text-rose-400'
+                              : 'bg-amber-500/20 text-amber-400'
+                          }`}>
+                            {p.status}
+                          </span>
+                        </td>
+                        <td className="p-3.5">
+                          {p.status !== 'SUCCESS' ? (
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => handleApprovePayment(p.id)}
+                                className="rounded bg-emerald-600 px-3 py-1 text-[11px] font-bold text-white hover:bg-emerald-500 transition shadow"
+                              >
+                                Approve ✓
+                              </button>
+                              {p.status !== 'FAILED' && (
+                                <button
+                                  onClick={() => handleRejectPayment(p.id)}
+                                  className="rounded bg-rose-600/80 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-rose-600 transition"
+                                >
+                                  Reject ✗
+                                </button>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-emerald-400 font-bold text-[11px]">Verified ✓</span>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* PAYMENT SCREENSHOT PREVIEW MODAL */}
+      {previewImage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="relative max-w-2xl w-full rounded-2xl bg-slate-900 border border-slate-700 p-4 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-sm font-bold text-white">Payment Screenshot Preview</h3>
+              <button
+                onClick={() => setPreviewImage(null)}
+                className="rounded bg-slate-800 p-1.5 text-slate-400 hover:text-white hover:bg-slate-700"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="flex justify-center max-h-[70vh] overflow-auto rounded-lg bg-slate-950 p-2 border border-slate-800">
+              <img src={previewImage} alt="Payment Receipt" className="max-w-full max-h-[65vh] object-contain rounded" />
+            </div>
+            <div className="flex justify-end">
+              <button
+                onClick={() => setPreviewImage(null)}
+                className="rounded-lg bg-indigo-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-indigo-500"
+              >
+                Close Preview
+              </button>
             </div>
           </div>
         </div>

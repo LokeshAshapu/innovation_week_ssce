@@ -71,6 +71,8 @@ model Payment {
   utr           String?
   status        String    @default("PENDING") // PENDING, INITIATED, VERIFICATION_REQUIRED, SUCCESS, FAILED
   receiptUrl    String?
+  screenshotData String?
+  rejectedReason String?
   verifiedAt    DateTime?
   createdAt     DateTime  @default(now())
 

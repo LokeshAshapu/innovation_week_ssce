@@ -119,4 +119,31 @@ export class PaymentService {
 
     return updatedPayment
   }
+
+  static async adminRejectPayment(paymentId: string, reason?: string) {
+    const payment = await db.payment.findUnique({
+      where: { id: paymentId },
+    })
+
+    if (!payment) {
+      throw new Error('Payment record not found')
+    }
+
+    const updatedPayment = await db.payment.update({
+      where: { id: paymentId },
+      data: {
+        status: 'FAILED',
+        rejectedReason: reason || 'Invalid payment verification or screenshot',
+      },
+    })
+
+    await db.team.update({
+      where: { id: payment.teamId },
+      data: {
+        paymentStatus: 'FAILED',
+      },
+    })
+
+    return updatedPayment
+  }
 }
