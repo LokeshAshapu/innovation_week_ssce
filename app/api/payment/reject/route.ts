@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server'
 import { PaymentService } from '@/lib/payment'
 import { getSession } from '@/lib/auth'
+import { ensureTablesExist } from '@/lib/db'
 
 export async function POST(request: Request) {
   try {
+    await ensureTablesExist()
     const session = await getSession()
     if (!session || !['ADMIN', 'COORDINATOR', 'FACULTY'].includes(session.role)) {
       return NextResponse.json({ error: 'Unauthorized. Admin or coordinator access required.' }, { status: 403 })

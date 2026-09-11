@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { db, ensureTablesExist } from '@/lib/db'
 import { createSession } from '@/lib/auth'
 
 export async function POST(request: Request) {
   try {
+    await ensureTablesExist()
     const { email, password } = await request.json()
 
     if (!email) {
