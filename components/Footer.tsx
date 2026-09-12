@@ -40,10 +40,11 @@ export function Footer() {
           {/* Col 3: Organization */}
           <div>
             <h4 className="font-semibold text-white text-sm mb-3">Organized By</h4>
-            <div className="space-y-2 text-slate-300">
-              <p className="font-medium text-white">Department of CSE & AI-ML</p>
-              <p>Sri Sivani College of Engineering (Autonomous)</p>
-              <p className="flex items-center gap-1.5 text-slate-400">
+            <div className="space-y-1.5 text-slate-300">
+              <p className="font-extrabold text-amber-400 text-sm tracking-wide">INVETRON CLUB</p>
+              <p className="font-bold text-white text-xs">TPO Cell by Dept. of CSE & AI-ML</p>
+              <p className="text-slate-400 text-xs">Sri Sivani College of Engineering (Autonomous)</p>
+              <p className="flex items-center gap-1.5 text-slate-400 text-[11px] pt-1">
                 <MapPin className="h-3.5 w-3.5 text-indigo-400 shrink-0" />
                 <span>Chilakapalem Jn., NH-16, Srikakulam, AP - 532410</span>
               </p>
