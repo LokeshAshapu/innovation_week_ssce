@@ -48,6 +48,8 @@ export interface SendRegistrationEmailParams {
   receiptUrl?: string
   members: EmailMember[]
   amount?: number
+  loginEmail?: string
+  loginPassword?: string
 }
 
 export async function sendRegistrationEmail({
@@ -58,6 +60,8 @@ export async function sendRegistrationEmail({
   receiptUrl,
   members,
   amount = 200,
+  loginEmail,
+  loginPassword = 'student123',
 }: SendRegistrationEmailParams) {
   // Collect all valid emails from leader and team members
   const recipientEmails = members
@@ -68,6 +72,9 @@ export async function sendRegistrationEmail({
     console.log('[Email Service] No recipient emails found for team:', teamCode)
     return { success: false, reason: 'No valid recipient emails' }
   }
+
+  const leaderRoll = members[0]?.rollNumber || ''
+  const displayLoginEmail = loginEmail || members[0]?.email || `${leaderRoll.toLowerCase()}@student.srisivani.ac.in`
 
   const isCash = paymentMethod === 'CASH'
   const subject = isCash
@@ -87,8 +94,8 @@ export async function sendRegistrationEmail({
         .header p { margin: 6px 0 0; color: #c7d2fe; font-size: 13px; }
         .content { padding: 28px 24px; }
         .badge { display: inline-block; padding: 6px 14px; font-size: 11px; font-weight: 700; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; }
-        .badge-cash { background-color: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-        .badge-phonepe { background-color: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-cash { background-color: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+        .badge-phonepe { background-color: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
         .card { background-color: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; margin-bottom: 20px; }
         .field-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #334155; font-size: 13px; }
         .field-row:last-child { border-bottom: none; }
@@ -97,7 +104,8 @@ export async function sendRegistrationEmail({
         .team-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 12px; }
         .team-table th { background-color: #090d16; color: #94a3b8; text-align: left; padding: 8px; border-bottom: 1px solid #334155; }
         .team-table td { padding: 8px; border-bottom: 1px solid #1e293b; color: #cbd5e1; }
-        .instructions { background-color: ${isCash ? 'rgba(245, 158, 11, 0.08)' : 'rgba(79, 70, 229, 0.08)'}; border-left: 4px solid ${isCash ? '#f59e0b' : '#6366f1'}; padding: 16px; border-radius: 0 8px 8px 0; margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
+        .instructions { background-color: #1e293b; color: #f8fafc !important; border-left: 4px solid ${isCash ? '#f59e0b' : '#6366f1'}; padding: 16px; border-radius: 0 8px 8px 0; margin-bottom: 20px; font-size: 13px; line-height: 1.6; border-top: 1px solid #334155; border-right: 1px solid #334155; border-bottom: 1px solid #334155; }
+        .login-box { background-color: #111827; border: 1px solid #4f46e5; border-radius: 12px; padding: 16px; margin-bottom: 20px; }
         .btn { display: inline-block; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #ffffff !important; padding: 12px 24px; text-decoration: none; font-weight: 700; font-size: 13px; border-radius: 10px; margin-top: 12px; text-align: center; }
         .footer { text-align: center; padding: 20px; border-top: 1px solid #1e293b; font-size: 11px; color: #64748b; }
       </style>
@@ -106,7 +114,7 @@ export async function sendRegistrationEmail({
       <div class="container">
         <div class="header">
           <h1>Sri Sivani Innovation Week 2026</h1>
-          <p>Dept of CSE & AI-ML • Sri Sivani College of Engineering (Autonomous)</p>
+          <p>INVETRON CLUB • TPO Cell by Dept of CSE & AI-ML</p>
         </div>
 
         <div class="content">
@@ -124,14 +132,36 @@ export async function sendRegistrationEmail({
             Thank you for registering for <strong>Innovation Week 2026</strong>. Below are your official team details.
           </p>
 
-          <div class="instructions">
+          <div class="instructions" style="color: #f8fafc !important;">
             ${
               isCash
-                ? `<strong>⚠️ Action Required to Confirm Your Spot:</strong><br>
-                   You selected <strong>Cash Payment</strong>. To confirm your spot, please pay <strong>₹${amount}</strong> in cash to the Student Coordinators.`
-                : `<strong>✅ Payment Submitted:</strong><br>
-                   You selected <strong>PhonePe / UPI Payment</strong> (₹${amount}). Your UTR reference number and payment screenshot have been received and sent for verification.`
+                ? `<strong style="color: #fbbf24;">⚠️ Action Required to Confirm Your Spot:</strong><br><span style="color: #f8fafc;">You selected <strong>Cash Payment</strong>. To confirm your spot, please pay <strong>₹${amount}</strong> in cash to the Student Coordinators.</span>`
+                : `<strong style="color: #34d399;">✅ Payment Submitted:</strong><br><span style="color: #f8fafc;">You selected <strong>PhonePe / UPI Payment</strong> (₹${amount}). Your UTR reference number and payment screenshot have been received and sent for verification.</span>`
             }
+          </div>
+
+          <!-- Team Login Credentials Box -->
+          <div class="login-box">
+            <h3 style="margin-top: 0; font-size: 14px; color: #818cf8; border-bottom: 1px solid #374151; padding-bottom: 8px;">
+              🔑 Your Team Portal Login Credentials
+            </h3>
+            <p style="font-size: 12px; color: #d1d5db; margin: 8px 0;">
+              Use these credentials to log in to your Team Dashboard to submit your startup ideas, prototypes, and pitch decks:
+            </p>
+            <table style="width: 100%; font-size: 13px; margin-top: 8px;">
+              <tr>
+                <td style="color: #9ca3af; padding: 4px 0;">Login Email / Roll No:</td>
+                <td style="color: #60a5fa; font-weight: 700; font-family: monospace; text-align: right;">${displayLoginEmail} ${leaderRoll ? `(or ${leaderRoll})` : ''}</td>
+              </tr>
+              <tr>
+                <td style="color: #9ca3af; padding: 4px 0;">Default Password:</td>
+                <td style="color: #34d399; font-weight: 700; font-family: monospace; text-align: right;">${loginPassword}</td>
+              </tr>
+              <tr>
+                <td style="color: #9ca3af; padding: 4px 0;">Team Code:</td>
+                <td style="color: #fbbf24; font-weight: 700; font-family: monospace; text-align: right;">${teamCode}</td>
+              </tr>
+            </table>
           </div>
 
           <div class="card">
@@ -177,11 +207,11 @@ export async function sendRegistrationEmail({
               <tbody>
                 ${members
                   .map(
-                    (m) => `
+                    (m, idx) => `
                   <tr>
-                    <td>${m.isLeader ? '<strong style="color:#818cf8;">Leader</strong>' : 'Member'}</td>
-                    <td>${m.name}</td>
-                    <td style="font-family: monospace;">${m.rollNumber}</td>
+                    <td>${(m.isLeader || idx === 0) ? '<strong style="color:#818cf8;">Team Lead 👑</strong>' : '<span style="color:#94a3b8;">Member</span>'}</td>
+                    <td style="font-weight: 600; color: #ffffff;">${m.name}</td>
+                    <td style="font-family: monospace; color: #cbd5e1;">${m.rollNumber}</td>
                     <td>${m.branch} ${m.year ? `(${m.year})` : ''}</td>
                   </tr>
                 `
@@ -193,16 +223,16 @@ export async function sendRegistrationEmail({
 
           <div style="text-align: center; margin-top: 24px;">
             <p style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;">
-              Log in to your Team Dashboard to submit your startup ideas, prototypes, and pitch deck:
+              Click below to access your Team Dashboard directly:
             </p>
-            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/login" class="btn">
+            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://innovationweekssce.vercel.app'}/login" class="btn">
               Access Team Dashboard →
             </a>
           </div>
         </div>
 
         <div class="footer">
-          <p>Sent by <strong>lokeshashapu@gmail.com</strong> on behalf of Dept of CSE & AI-ML</p>
+          <p>Sent by <strong>lokeshashapu@gmail.com</strong> on behalf of INVETRON CLUB & TPO Cell</p>
           <p>Sri Sivani College of Engineering (Autonomous), Srikakulam</p>
         </div>
       </div>
@@ -234,6 +264,7 @@ export interface SendCertificateEmailParams {
   awardType: string
   certCode: string
   startupName?: string
+  pdfBuffer?: Buffer
 }
 
 export async function sendCertificateEmail({
@@ -244,6 +275,7 @@ export async function sendCertificateEmail({
   awardType,
   certCode,
   startupName,
+  pdfBuffer,
 }: SendCertificateEmailParams) {
   if (!email || !email.includes('@')) {
     return { success: false, reason: 'Invalid or missing email address' }
@@ -276,7 +308,7 @@ export async function sendCertificateEmail({
         .header h1 { margin: 0; color: #ffffff; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
         .header p { margin: 6px 0 0; color: #dbeafe; font-size: 12px; }
         .content { padding: 28px 24px; }
-        .cert-badge { display: inline-block; padding: 8px 16px; font-size: 13px; font-weight: 800; border-radius: 20px; background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); margin-bottom: 20px; text-align: center; }
+        .cert-badge { display: inline-block; padding: 8px 16px; font-size: 13px; font-weight: 800; border-radius: 20px; background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); margin-bottom: 20px; text-align: center; }
         .card { background-color: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; margin-bottom: 20px; }
         .field-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #334155; font-size: 13px; }
         .field-row:last-child { border-bottom: none; }
@@ -290,7 +322,7 @@ export async function sendCertificateEmail({
       <div class="container">
         <div class="header">
           <h1>Sri Sivani Innovation Week 2026</h1>
-          <p>Dept of CSE & AI-ML • Sri Sivani College of Engineering (Autonomous)</p>
+          <p>INVETRON CLUB • TPO Cell by Dept of CSE & AI-ML</p>
         </div>
 
         <div class="content">
@@ -332,16 +364,16 @@ export async function sendCertificateEmail({
 
           <div style="text-align: center; margin-top: 24px;">
             <p style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;">
-              Log in to your Team Dashboard to view and download your high-resolution PDF certificate:
+              Log in to your Team Dashboard to view your full results and download your PDF certificate:
             </p>
-            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard" class="btn">
-              Download Certificate PDF →
+            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://innovationweekssce.vercel.app'}/login" class="btn">
+              Access Team Dashboard →
             </a>
           </div>
         </div>
 
         <div class="footer">
-          <p>Sent by <strong>lokeshashapu@gmail.com</strong> on behalf of Dept of CSE & AI-ML</p>
+          <p>Sent by <strong>lokeshashapu@gmail.com</strong> on behalf of INVETRON CLUB & TPO Cell</p>
           <p>Sri Sivani College of Engineering (Autonomous), Srikakulam</p>
         </div>
       </div>
@@ -350,12 +382,24 @@ export async function sendCertificateEmail({
   `
 
   try {
-    const info = await transporter.sendMail({
+    const mailOptions: any = {
       from: `"Sri Sivani Innovation Week" <${SENDER_EMAIL}>`,
       to: email,
       subject,
       html: htmlContent,
-    })
+    }
+
+    if (pdfBuffer) {
+      mailOptions.attachments = [
+        {
+          filename: `Innovation_Week_2026_Certificate_${rollNumber}.pdf`,
+          content: pdfBuffer,
+          contentType: 'application/pdf',
+        },
+      ]
+    }
+
+    const info = await transporter.sendMail(mailOptions)
 
     return { success: true, messageId: info.messageId, recipient: email }
   } catch (error) {
@@ -363,4 +407,5 @@ export async function sendCertificateEmail({
     return { success: false, error: String(error) }
   }
 }
+
 

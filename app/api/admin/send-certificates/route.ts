@@ -54,6 +54,23 @@ export async function POST(request: Request) {
         // Email address to send certificate to
         const studentEmail = member.email || `${member.rollNumber.toLowerCase()}@student.srisivani.ac.in`
 
+        // Generate PDF Buffer attachment
+        let pdfBuffer: Buffer | undefined = undefined
+        try {
+          const { generateCertificatePDF } = await import('@/lib/certificates')
+          const doc = generateCertificatePDF({
+            studentName: member.name,
+            rollNumber: member.rollNumber,
+            teamName: team.name,
+            awardType: cert.awardType,
+            certCode: cert.certCode,
+            startupName: team.ideaSubmission?.startupName,
+          })
+          pdfBuffer = Buffer.from(doc.output('arraybuffer'))
+        } catch (pdfErr) {
+          console.warn('PDF generation note:', pdfErr)
+        }
+
         const mailRes = await sendCertificateEmail({
           studentName: member.name,
           rollNumber: member.rollNumber,
@@ -62,6 +79,7 @@ export async function POST(request: Request) {
           awardType: cert.awardType,
           certCode: cert.certCode,
           startupName: team.ideaSubmission?.startupName,
+          pdfBuffer,
         })
 
         if (mailRes.success) {
