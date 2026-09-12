@@ -92,7 +92,7 @@ async function main() {
       dayNumber: 1,
       title: 'INAUGURAL & ENTREPRENEURSHIP AWARENESS',
       theme: 'Understanding Entrepreneurship, Innovation and the Startup Ecosystem',
-      date: 'Day 1 (Monday)',
+      date: 'Day 1 (Saturday, 19th Sept)',
       sessions: {
         create: [
           {
@@ -168,7 +168,7 @@ async function main() {
       dayNumber: 2,
       title: 'STARTUP IDEA PRESENTATION',
       theme: 'Problem Identification, Solution Design and Business Model',
-      date: 'Day 2 (Tuesday)',
+      date: 'Day 2 (Monday, 21st Sept)',
       sessions: {
         create: [
           {
@@ -216,7 +216,7 @@ async function main() {
       dayNumber: 3,
       title: 'PROTOTYPE DEVELOPMENT',
       theme: 'Converting Startup Ideas into Working Prototypes',
-      date: 'Day 3 (Wednesday)',
+      date: 'Day 3 (Tuesday, 22nd Sept)',
       sessions: {
         create: [
           {
@@ -271,7 +271,7 @@ async function main() {
       dayNumber: 4,
       title: 'MVP DEVELOPMENT & BUSINESS PITCH',
       theme: 'Product Validation, Minimum Viable Product and Startup Pitch',
-      date: 'Day 4 (Thursday)',
+      date: 'Day 4 (Wednesday, 23rd Sept)',
       sessions: {
         create: [
           {
@@ -326,7 +326,7 @@ async function main() {
       dayNumber: 5,
       title: 'GRAND FINALE & AWARDS CEREMONY',
       theme: 'Final Startup Presentation, Evaluation and Recognition',
-      date: 'Day 5 (Friday)',
+      date: 'Day 5 (Thursday & Friday, 24th–25th Sept)',
       sessions: {
         create: [
           {

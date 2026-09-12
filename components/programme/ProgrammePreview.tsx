@@ -13,7 +13,7 @@ export function ProgrammePreview() {
       day: 1,
       title: 'INAUGURAL & ENTREPRENEURSHIP AWARENESS',
       theme: 'Understanding Entrepreneurship, Innovation and the Startup Ecosystem',
-      date: 'Day 1 (Monday)',
+      date: 'Day 1 (Saturday, 19th Sept)',
       sessions: [
         { time: '9:30 AM', title: 'Gathering & Attendance', lead: 'A. Lokesh & K. Hareesh', output: '100% Attendance & Registration' },
         { time: '10:40 AM', title: 'Expert Keynote Talk', lead: 'Guest Founder', output: 'Entrepreneurial Inspiration' },
@@ -24,7 +24,7 @@ export function ProgrammePreview() {
       day: 2,
       title: 'STARTUP IDEA PRESENTATION',
       theme: 'Problem Identification, Solution Design and Business Model',
-      date: 'Day 2 (Tuesday)',
+      date: 'Day 2 (Monday, 21st Sept)',
       sessions: [
         { time: '2:00 PM', title: 'Assembly & Attendance', lead: 'B. Yogeswari & K. Raghavendra', output: 'Teams Assembled' },
         { time: '2:25 PM', title: 'Startup Idea Presentations', lead: 'Evaluator Panel', output: '3-Min Pitch Rounds' },
@@ -35,7 +35,7 @@ export function ProgrammePreview() {
       day: 3,
       title: 'PROTOTYPE DEVELOPMENT',
       theme: 'Converting Startup Ideas into Working Prototypes',
-      date: 'Day 3 (Wednesday)',
+      date: 'Day 3 (Tuesday, 22nd Sept)',
       sessions: [
         { time: '2:00 PM', title: 'Assembly & Lab Check-in', lead: 'P. Sony & R. Dileep Kumar', output: 'Lab Workstations Activated' },
         { time: '2:25 PM', title: 'Intensive Development Sprint', lead: 'Team Members', output: 'Functional Code & Hardware Jigs' },
@@ -46,7 +46,7 @@ export function ProgrammePreview() {
       day: 4,
       title: 'MVP DEVELOPMENT & BUSINESS PITCH',
       theme: 'Product Validation, Minimum Viable Product and Startup Pitch',
-      date: 'Day 4 (Thursday)',
+      date: 'Day 4 (Wednesday, 23rd Sept)',
       sessions: [
         { time: '2:00 PM', title: 'MVP Briefing & Packaging', lead: 'B. Amrutha & Rami Naidu', output: 'Live Demo URL Ready' },
         { time: '3:05 PM', title: 'Product Validation', lead: 'Team Leaders', output: 'User Feedback Synthesized' },
@@ -57,7 +57,7 @@ export function ProgrammePreview() {
       day: 5,
       title: 'GRAND FINALE & AWARDS',
       theme: 'Final Startup Presentation, Evaluation and Recognition',
-      date: 'Day 5 (Friday)',
+      date: 'Day 5 (Thursday & Friday, 24th–25th Sept)',
       sessions: [
         { time: '2:00 PM', title: 'Auditorium Assembly', lead: 'All Coordinators', output: 'Jury & Audience Ready' },
         { time: '2:15 PM', title: 'Grand Finale Pitches', lead: 'Jury Panel', output: 'Real-Time Weighted Scoring' },

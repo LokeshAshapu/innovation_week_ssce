@@ -23,12 +23,13 @@ After payment, enter your UTR number on the website to confirm registration!`
   }
 
   if (query.includes('schedule') || query.includes('timing') || query.includes('programme') || query.includes('date') || query.includes('day')) {
-    return `📅 *Innovation Week 2026 Schedule Overview*
-• Day 1: Inaugural & Entrepreneurship Awareness (9:30 AM)
-• Day 2: Startup Idea Presentations (2:00 PM)
-• Day 3: Prototype Development Sprint (2:00 PM)
-• Day 4: MVP Development & Business Pitch (2:00 PM)
-• Day 5: Grand Finale & Jury Awards (2:00 PM)`
+    return `📅 *Innovation Week 2026 Schedule (19th Sept - 25th Sept)*
+• Day 1: Saturday, 19th Sept — Inaugural & Entrepreneurship Awareness (9:30 AM)
+• ☀️ Sunday, 20th Sept — Holiday (No Scheduled Event)
+• Day 2: Monday, 21st Sept — Startup Idea Presentations (2:00 PM)
+• Day 3: Tuesday, 22nd Sept — Prototype Development Sprint (2:00 PM)
+• Day 4: Wednesday, 23rd Sept — MVP Development & Business Pitch (2:00 PM)
+• Day 5: Thursday & Friday, 24th–25th Sept — Grand Finale & Jury Awards (2:00 PM)`
   }
 
   if (query.includes('diploma') || query.includes('branch')) {

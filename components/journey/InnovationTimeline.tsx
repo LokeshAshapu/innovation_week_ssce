@@ -7,7 +7,7 @@ export function InnovationTimeline() {
   const stages = [
     {
       num: '01',
-      day: 'Day 1',
+      day: 'Day 1 (19 Sept)',
       title: 'LEARN',
       theme: 'Entrepreneurship & Inspiration',
       desc: 'Entrepreneurship awareness, incubation ecosystem briefing, guest keynote, and 3-4 member team formation.',
@@ -19,7 +19,7 @@ export function InnovationTimeline() {
     },
     {
       num: '02',
-      day: 'Day 2',
+      day: 'Day 2 (21 Sept)',
       title: 'IDEATE',
       theme: 'Problem → Solution',
       desc: 'Formulating startup problem statements, target user pain points, USP, and 3-minute rapid pitch presentations.',
@@ -31,7 +31,7 @@ export function InnovationTimeline() {
     },
     {
       num: '03',
-      day: 'Day 3',
+      day: 'Day 3 (22 Sept)',
       title: 'BUILD',
       theme: 'Prototype Development',
       desc: 'Intensive lab development sprint creating functional prototypes (Software, AI/ML, IoT, Hardware, UI/UX).',
@@ -43,7 +43,7 @@ export function InnovationTimeline() {
     },
     {
       num: '04',
-      day: 'Day 4',
+      day: 'Day 4 (23 Sept)',
       title: 'VALIDATE',
       theme: 'MVP & Business Pitch',
       desc: 'Minimum Viable Product release candidate, user validation sprint, and 11-point pitch deck structure assembly.',
@@ -55,7 +55,7 @@ export function InnovationTimeline() {
     },
     {
       num: '05',
-      day: 'Day 5',
+      day: 'Day 5 (24-25 Sept)',
       title: 'LAUNCH',
       theme: 'Final Pitch & Recognition',
       desc: 'Grand Auditorium live presentations before Ratan Tata Innovation Hub jury panel, live results, and award distribution.',
@@ -80,7 +80,7 @@ export function InnovationTimeline() {
             FROM IDEA TO STARTUP
           </h2>
           <p className="text-sm font-semibold text-slate-400">
-            Five days. Five stages. One journey.
+            19th–25th Sept 2026 • Sept 20th Sunday Holiday
           </p>
         </div>
 

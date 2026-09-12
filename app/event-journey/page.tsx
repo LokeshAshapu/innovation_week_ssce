@@ -7,7 +7,7 @@ import { TiltCard } from '@/components/ui/TiltCard'
 export default function EventJourneyPage() {
   const steps = [
     {
-      day: 'DAY 1',
+      day: 'DAY 1 • SAT, 19 SEPT',
       title: 'LEARN → INSPIRE → FORM TEAMS',
       subtitle: 'Entrepreneurship Awareness & Ecosystem Briefing',
       icon: Lightbulb,
@@ -25,7 +25,7 @@ export default function EventJourneyPage() {
       output: 'Teams formed, problem domain identified & registered on portal',
     },
     {
-      day: 'DAY 2',
+      day: 'DAY 2 • MON, 21 SEPT',
       title: 'IDENTIFY → DESIGN → PRESENT',
       subtitle: 'Startup Idea Pitch Sprint',
       icon: Target,
@@ -42,7 +42,7 @@ export default function EventJourneyPage() {
       output: 'Problem statement & business model approved for prototype build',
     },
     {
-      day: 'DAY 3',
+      day: 'DAY 3 • TUE, 22 SEPT',
       title: 'BUILD → DEMONSTRATE → IMPROVE',
       subtitle: 'Hands-on Prototype Sprint',
       icon: Cpu,
@@ -59,7 +59,7 @@ export default function EventJourneyPage() {
       output: 'Working prototype assembled ready for MVP integration',
     },
     {
-      day: 'DAY 4',
+      day: 'DAY 4 • WED, 23 SEPT',
       title: 'MVP → VALIDATE → PITCH',
       subtitle: 'Minimum Viable Product & Business Validation',
       icon: Rocket,
@@ -76,7 +76,7 @@ export default function EventJourneyPage() {
       output: 'Live MVP deployed and 11-slide pitch deck submitted on portal',
     },
     {
-      day: 'DAY 5',
+      day: 'DAY 5 • THU-FRI, 24-25 SEPT',
       title: 'PITCH → EVALUATE → RECOGNIZE',
       subtitle: 'Grand Finale & Incubation Offers',
       icon: Award,
@@ -109,7 +109,7 @@ export default function EventJourneyPage() {
           <div className="text-center space-y-4 max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-1.5 text-xs font-bold text-indigo-300 backdrop-blur-md">
               <Sparkles className="h-4 w-4 text-amber-400" />
-              <span>5-DAY ACTION-PACKED HACKATHON ROADMAP</span>
+              <span>19TH SEPT – 25TH SEPT 2026 (SEPT 20TH SUNDAY HOLIDAY)</span>
             </div>
             <h1 className="text-4xl font-black text-white sm:text-6xl tracking-tight leading-tight">
               The Innovation <br className="hidden sm:inline" />
