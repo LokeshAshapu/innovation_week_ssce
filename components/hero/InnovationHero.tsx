@@ -63,15 +63,13 @@ export function InnovationHero() {
                 <Sparkles className="h-5 w-5 text-amber-400 shrink-0" />
                 <span>Build, Pitch & Win Big at Srikakulam&apos;s Flagship Hackathon</span>
               </p>
-            </div>
-
-            {/* Subheading & Supporting Text */}
+            </div>              {/* Subheading & Supporting Text */}
             <div className="space-y-2 max-w-xl">
               <p className="text-base sm:text-lg font-semibold text-slate-300">
                 Building the Next Generation of Tech Leaders & Entrepreneurs
               </p>
               <p className="text-sm text-slate-400 leading-relaxed font-normal">
-                5 Days of intense ideation, prototyping, MVP deployment & live auditorium pitching. Organized by <strong className="text-slate-200">INVETRON CLUB</strong> & <strong className="text-slate-200">TPO Cell by Dept. of CSE & AI-ML</strong> in collaboration with Ratan Tata Innovation Hub.
+                5 Days of intense ideation, prototyping, MVP deployment & live auditorium pitching. Organized by <strong className="text-slate-200">TPO Cell</strong> by <strong className="text-slate-200">Dept. of CSE & AI-ML</strong> in collaboration with Ratan Tata Innovation Hub.
               </p>
             </div>
 
@@ -151,8 +149,8 @@ export function InnovationHero() {
                     INNOVATION HUB PARTNER
                   </span>
                 </div>
-                <h3 className="text-xl font-extrabold text-white">INVETRON CLUB</h3>
-                <p className="text-xs font-bold text-indigo-400">TPO Cell by Dept. of CSE & AI-ML</p>
+                <h3 className="text-xl font-extrabold text-white">TPO Cell</h3>
+                <p className="text-xs font-bold text-indigo-400">Dept. of CSE & AI-ML</p>
                 <p className="text-xs text-slate-400 leading-relaxed font-normal pt-1">
                   Collaborating with Ratan Tata Innovation Hub to offer incubation support, 100% verified certificates, and awards for top teams.
                 </p>

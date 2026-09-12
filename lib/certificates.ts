@@ -41,14 +41,9 @@ export function generateCertificatePDF(data: CertificateData) {
   doc.text('(Autonomous) | Srikakulam, Andhra Pradesh', width / 2, 37, { align: 'center' })
 
   doc.setFont('helvetica', 'bold')
-  doc.setFontSize(12)
+  doc.setFontSize(13)
   doc.setTextColor(79, 70, 229) // Indigo-600
-  doc.text('INVETRON CLUB | TPO CELL', width / 2, 45, { align: 'center' })
-
-  doc.setFont('helvetica', 'normal')
-  doc.setFontSize(10)
-  doc.setTextColor(100, 116, 139)
-  doc.text('Dept. of CSE & AI-ML', width / 2, 51, { align: 'center' })
+  doc.text('TPO CELL • DEPT. OF CSE & AI-ML', width / 2, 45, { align: 'center' })
 
   // Certificate Title
   doc.setFont('helvetica', 'bold')

@@ -114,7 +114,7 @@ export async function sendRegistrationEmail({
       <div class="container">
         <div class="header">
           <h1>Sri Sivani Innovation Week 2026</h1>
-          <p>INVETRON CLUB • TPO Cell by Dept of CSE & AI-ML</p>
+          <p>TPO Cell • Dept of CSE & AI-ML</p>
         </div>
 
         <div class="content">
@@ -232,7 +232,7 @@ export async function sendRegistrationEmail({
         </div>
 
         <div class="footer">
-          <p>Sent by <strong>lokeshashapu@gmail.com</strong> on behalf of INVETRON CLUB & TPO Cell</p>
+          <p>Sent by <strong>lokeshashapu@gmail.com</strong> on behalf of TPO Cell & Dept of CSE & AI-ML</p>
           <p>Sri Sivani College of Engineering (Autonomous), Srikakulam</p>
         </div>
       </div>
@@ -322,7 +322,7 @@ export async function sendCertificateEmail({
       <div class="container">
         <div class="header">
           <h1>Sri Sivani Innovation Week 2026</h1>
-          <p>INVETRON CLUB • TPO Cell by Dept of CSE & AI-ML</p>
+          <p>TPO Cell • Dept of CSE & AI-ML</p>
         </div>
 
         <div class="content">

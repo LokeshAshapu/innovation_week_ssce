@@ -40,8 +40,8 @@ export function Footer() {
           <div>
             <h4 className="font-semibold text-white text-sm mb-3">Organized By</h4>
             <div className="space-y-1.5 text-slate-300">
-              <p className="font-extrabold text-amber-400 text-sm tracking-wide">INVETRON CLUB</p>
-              <p className="font-bold text-white text-xs">TPO Cell by Dept. of CSE & AI-ML</p>
+              <p className="font-extrabold text-amber-400 text-sm tracking-wide">TPO Cell</p>
+              <p className="font-bold text-white text-xs">Dept. of CSE & AI-ML</p>
               <p className="text-slate-400 text-xs">Sri Sivani College of Engineering (Autonomous)</p>
               <p className="flex items-center gap-1.5 text-slate-400 text-[11px] pt-1">
                 <MapPin className="h-3.5 w-3.5 text-indigo-400 shrink-0" />

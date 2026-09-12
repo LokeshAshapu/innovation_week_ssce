@@ -50,24 +50,24 @@ export default function AboutPage() {
           <div className="flex items-center gap-3">
             <Building2 className="h-7 w-7 text-indigo-400" />
             <div>
-              <h2 className="text-2xl font-extrabold text-amber-400">INVETRON CLUB</h2>
-              <p className="text-sm text-slate-200 font-bold">TPO Cell by Dept. of CSE & AI-ML</p>
+              <h2 className="text-2xl font-extrabold text-amber-400">TPO Cell</h2>
+              <p className="text-sm text-slate-200 font-bold">Dept. of CSE & AI-ML</p>
               <p className="text-xs text-slate-400 font-medium">Sri Sivani College of Engineering (Autonomous), Srikakulam</p>
             </div>
           </div>
 
           <p className="text-sm text-slate-300 leading-relaxed">
-            INVETRON CLUB, operated under the Training & Placement Office (TPO Cell) by the Department of Computer Science & Engineering and Artificial Intelligence & Machine Learning at Sri Sivani College of Engineering, is dedicated to nurturing technical talent, innovation, and startup readiness among students.
+            TPO Cell, operated under the Department of Computer Science & Engineering and Artificial Intelligence & Machine Learning at Sri Sivani College of Engineering, is dedicated to nurturing technical talent, innovation, and startup readiness among students.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-slate-800">
             <div className="space-y-1">
               <span className="text-xs text-slate-400">Organized By:</span>
-              <p className="text-sm font-bold text-amber-400">INVETRON CLUB</p>
+              <p className="text-sm font-bold text-amber-400">TPO Cell</p>
             </div>
             <div className="space-y-1">
-              <span className="text-xs text-slate-400">Cell / Department:</span>
-              <p className="text-sm font-semibold text-white">TPO Cell by Dept. of CSE & AI-ML</p>
+              <span className="text-xs text-slate-400">Department:</span>
+              <p className="text-sm font-semibold text-white">Dept. of CSE & AI-ML</p>
             </div>
             <div className="space-y-1">
               <span className="text-xs text-slate-400">Incubation Partner:</span>
