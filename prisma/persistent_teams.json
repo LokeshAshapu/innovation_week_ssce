@@ -1,0 +1,39 @@
+[
+  {
+    "teamCode": "IW-2026-1001",
+    "teamName": "Team Agex",
+    "paymentMethod": "CASH",
+    "utr": null,
+    "screenshotData": null,
+    "membersList": [
+      {
+        "name": "Lokesh",
+        "rollNumber": "23W61A0506",
+        "branch": "CSE",
+        "year": "4th Year",
+        "email": "lokeshashapu@gmail.com",
+        "phone": "8790846260",
+        "isLeader": true
+      },
+      {
+        "name": "Divya",
+        "rollNumber": "23W61A0515",
+        "branch": "CSE",
+        "year": "4th Year",
+        "email": null,
+        "phone": null,
+        "isLeader": false
+      },
+      {
+        "name": "Vinay",
+        "rollNumber": "23W61A0518",
+        "branch": "CSE",
+        "year": "4th Year",
+        "email": null,
+        "phone": null,
+        "isLeader": false
+      }
+    ],
+    "createdAt": "2026-09-12T10:12:24.037Z"
+  }
+]
