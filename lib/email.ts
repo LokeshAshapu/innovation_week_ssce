@@ -1,11 +1,12 @@
 import nodemailer from 'nodemailer'
 
 export const SENDER_EMAIL = 'lokeshashapu@gmail.com'
+export const DEFAULT_GMAIL_APP_PASS = 'nksrtzmjlpvwjwsa'
 
 // Nodemailer Transporter Setup
 const getTransporter = () => {
   const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER || SENDER_EMAIL
-  const smtpPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD || ''
+  const smtpPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD || DEFAULT_GMAIL_APP_PASS
 
   if (process.env.SMTP_HOST) {
     return nodemailer.createTransport({
@@ -210,14 +211,6 @@ export async function sendRegistrationEmail({
   `
 
   try {
-    if (!process.env.SMTP_USER && !process.env.GMAIL_APP_PASSWORD) {
-      console.log(`[Email Mock Service] Email created for ${recipientEmails.join(', ')} from ${SENDER_EMAIL}:`, {
-        subject,
-        teamCode,
-      })
-      return { success: true, mock: true, recipients: recipientEmails }
-    }
-
     const info = await transporter.sendMail({
       from: `"Sri Sivani Innovation Week" <${SENDER_EMAIL}>`,
       to: recipientEmails.join(', '),
@@ -357,14 +350,6 @@ export async function sendCertificateEmail({
   `
 
   try {
-    if (!process.env.SMTP_USER && !process.env.GMAIL_APP_PASSWORD) {
-      console.log(`[Email Mock Service] Certificate Email created for ${email}:`, {
-        subject,
-        certCode,
-      })
-      return { success: true, mock: true, recipient: email }
-    }
-
     const info = await transporter.sendMail({
       from: `"Sri Sivani Innovation Week" <${SENDER_EMAIL}>`,
       to: email,
