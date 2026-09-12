@@ -384,15 +384,6 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
           <span>Live Presentation Timer (3 Min)</span>
         </button>
 
-        <button
-          onClick={() => setActiveTab('ANNOUNCEMENTS')}
-          className={`rounded-xl px-4 py-2 text-xs font-bold transition flex items-center gap-2 ${
-            activeTab === 'ANNOUNCEMENTS' ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-400 hover:text-white'
-          }`}
-        >
-          <Bell className="h-4 w-4" />
-          <span>Announcements</span>
-        </button>
 
         <button
           onClick={() => setActiveTab('CERTIFICATES')}

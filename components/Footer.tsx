@@ -33,7 +33,6 @@ export function Footer() {
               <li><Link href="/programme" className="hover:text-indigo-400 transition">5-Day Schedule</Link></li>
               <li><Link href="/event-journey" className="hover:text-indigo-400 transition">Interactive Event Journey</Link></li>
               <li><Link href="/evaluation" className="hover:text-indigo-400 transition">Jury Evaluation Rubric</Link></li>
-              <li><Link href="/leaderboard" className="hover:text-indigo-400 transition">Live Leaderboard</Link></li>
             </ul>
           </div>
 

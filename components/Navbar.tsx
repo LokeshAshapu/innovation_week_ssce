@@ -19,8 +19,6 @@ export function Navbar() {
     { href: '/event-journey', label: 'Journey' },
     { href: '/coordinators', label: 'Coordinators' },
     { href: '/evaluation', label: 'Rubric' },
-    { href: '/leaderboard', label: 'Leaderboard' },
-    { href: '/announcements', label: 'Announcements' },
   ]
 
   // Secret Triple-Click on Logo redirects directly to Admin Login
