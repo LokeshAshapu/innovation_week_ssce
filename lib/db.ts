@@ -335,6 +335,29 @@ export async function ensureTablesExist() {
       console.warn('Backup rehydrate notice:', rErr)
     }
 
+    // Clean out any legacy seed dummy teams if present
+    try {
+      const dummyNames = [
+        'AgriSense AI',
+        'NeuroHealth Bot',
+        'EcoGrid Tech',
+        'PolyCraft Diploma Innovators',
+        'AquaPurify Labs',
+        'FleetTrack Logistics',
+        'CyberShield Edu',
+        'ChargeMobility',
+        'MedAssist AI',
+        'MediWaste Trace',
+      ]
+      await db.team
+        .deleteMany({
+          where: { name: { in: dummyNames } },
+        })
+        .catch(() => null)
+    } catch (e) {
+      console.warn('Purge dummy note:', e)
+    }
+
     isInitialized = true
   } catch (e) {
     console.error('Failed to auto-create schema tables:', e)

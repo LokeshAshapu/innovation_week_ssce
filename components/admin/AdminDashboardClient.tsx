@@ -608,39 +608,55 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800 text-slate-300">
-                  {filteredTeams.map((t) => (
-                    <tr key={t.id} className="hover:bg-slate-800/40">
-                      <td className="p-3.5 font-mono text-indigo-400 font-bold">{t.teamCode}</td>
-                      <td className="p-3.5">
-                        <p className="font-bold text-white">{t.name}</p>
-                        <p className="text-[11px] text-slate-400">{t.ideaSubmission?.startupName || 'No idea yet'}</p>
-                      </td>
-                      <td className="p-3.5">
-                        <p className="font-medium text-slate-200">{t.members.find((m: any) => m.isLeader)?.name}</p>
-                        <p className="text-[10px] text-slate-400 font-mono">{t.members.find((m: any) => m.isLeader)?.rollNumber}</p>
-                      </td>
-                      <td className="p-3.5">
-                        <span className="rounded bg-slate-950 px-2 py-1 border border-slate-800 font-mono text-[11px]">
-                          {t.members.find((m: any) => m.isLeader)?.branch}
-                        </span>
-                      </td>
-                      <td className="p-3.5 font-semibold text-slate-200">{t.size}</td>
-                      <td className="p-3.5">
-                        <span className={`rounded px-2 py-0.5 text-[10px] font-bold ${
-                          t.paymentStatus === 'SUCCESS' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
-                        }`}>
-                          {t.paymentStatus}
-                        </span>
-                      </td>
-                      <td className="p-3.5">
-                        {t.ideaSubmission ? (
-                          <span className="text-emerald-400 font-bold text-[11px]">Submitted ✓</span>
-                        ) : (
-                          <span className="text-slate-500 text-[11px]">Pending</span>
-                        )}
+                  {filteredTeams.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="p-10 text-center text-slate-400">
+                        <div className="flex flex-col items-center justify-center space-y-3">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                            <Users className="h-6 w-6" />
+                          </div>
+                          <p className="text-sm font-bold text-white">No Team Registrations Yet</p>
+                          <p className="text-xs text-slate-400 max-w-md">
+                            All dummy data has been removed. Live student team registrations submitted on the portal will immediately upload and show up here in real-time.
+                          </p>
+                        </div>
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredTeams.map((t) => (
+                      <tr key={t.id} className="hover:bg-slate-800/40">
+                        <td className="p-3.5 font-mono text-indigo-400 font-bold">{t.teamCode}</td>
+                        <td className="p-3.5">
+                          <p className="font-bold text-white">{t.name}</p>
+                          <p className="text-[11px] text-slate-400">{t.ideaSubmission?.startupName || 'No idea yet'}</p>
+                        </td>
+                        <td className="p-3.5">
+                          <p className="font-medium text-slate-200">{t.members.find((m: any) => m.isLeader)?.name}</p>
+                          <p className="text-[10px] text-slate-400 font-mono">{t.members.find((m: any) => m.isLeader)?.rollNumber}</p>
+                        </td>
+                        <td className="p-3.5">
+                          <span className="rounded bg-slate-950 px-2 py-1 border border-slate-800 font-mono text-[11px]">
+                            {t.members.find((m: any) => m.isLeader)?.branch}
+                          </span>
+                        </td>
+                        <td className="p-3.5 font-semibold text-slate-200">{t.size}</td>
+                        <td className="p-3.5">
+                          <span className={`rounded px-2 py-0.5 text-[10px] font-bold ${
+                            t.paymentStatus === 'SUCCESS' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
+                          }`}>
+                            {t.paymentStatus}
+                          </span>
+                        </td>
+                        <td className="p-3.5">
+                          {t.ideaSubmission ? (
+                            <span className="text-emerald-400 font-bold text-[11px]">Submitted ✓</span>
+                          ) : (
+                            <span className="text-slate-500 text-[11px]">Pending</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -669,65 +685,82 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800 text-slate-300">
-                  {payments.map((p) => {
-                    const img = p.screenshotData || p.receiptUrl
-                    return (
-                      <tr key={p.id} className="hover:bg-slate-800/40">
-                        <td className="p-3.5 font-mono text-indigo-400 font-bold">{p.orderId}</td>
-                        <td className="p-3.5 font-bold text-white">{p.team?.name}</td>
-                        <td className="p-3.5 font-bold text-emerald-400">₹{p.amount}</td>
-                        <td className="p-3.5 text-slate-400">{p.provider}</td>
-                        <td className="p-3.5 font-mono text-slate-300">{p.utr || p.transactionId || 'Pending UTR'}</td>
-                        <td className="p-3.5">
-                          {img ? (
-                            <button
-                              onClick={() => setPreviewImage(img)}
-                              className="group relative flex items-center gap-1.5 rounded bg-slate-800 px-2 py-1 text-[11px] text-indigo-300 hover:bg-indigo-900/40 border border-slate-700 hover:border-indigo-500/50 transition"
-                            >
-                              <img src={img} alt="Receipt" className="h-5 w-5 rounded object-cover" />
-                              <span className="font-semibold">View Screenshot 🖼️</span>
-                            </button>
-                          ) : (
-                            <span className="text-slate-500 italic text-[11px]">No image</span>
-                          )}
-                        </td>
-                        <td className="p-3.5">
-                          <span className={`rounded px-2 py-0.5 text-[10px] font-bold ${
-                            p.status === 'SUCCESS'
-                              ? 'bg-emerald-500/20 text-emerald-400'
-                              : p.status === 'FAILED'
-                              ? 'bg-rose-500/20 text-rose-400'
-                              : 'bg-amber-500/20 text-amber-400'
-                          }`}>
-                            {p.status}
-                          </span>
-                        </td>
-                        <td className="p-3.5">
-                          {p.status !== 'SUCCESS' ? (
-                            <div className="flex items-center gap-2">
+                  {payments.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="p-10 text-center text-slate-400">
+                        <div className="flex flex-col items-center justify-center space-y-3">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            <CreditCard className="h-6 w-6" />
+                          </div>
+                          <p className="text-sm font-bold text-white">No Payment Records Yet</p>
+                          <p className="text-xs text-slate-400 max-w-md">
+                            When teams submit UPI payments with UTR numbers and screenshots, payment orders will appear here for verification.
+                          </p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    payments.map((p) => {
+                      const img = p.screenshotData || p.receiptUrl
+                      return (
+                        <tr key={p.id} className="hover:bg-slate-800/40">
+                          <td className="p-3.5 font-mono text-indigo-400 font-bold">{p.orderId}</td>
+                          <td className="p-3.5 font-bold text-white">{p.team?.name}</td>
+                          <td className="p-3.5 font-bold text-emerald-400">₹{p.amount}</td>
+                          <td className="p-3.5 text-slate-400">{p.provider}</td>
+                          <td className="p-3.5 font-mono text-slate-300">{p.utr || p.transactionId || 'Pending UTR'}</td>
+                          <td className="p-3.5">
+                            {img ? (
                               <button
-                                onClick={() => handleApprovePayment(p.id)}
-                                className="rounded bg-emerald-600 px-3 py-1 text-[11px] font-bold text-white hover:bg-emerald-500 transition shadow"
+                                onClick={() => setPreviewImage(img)}
+                                className="group relative flex items-center gap-1.5 rounded bg-slate-800 px-2 py-1 text-[11px] text-indigo-300 hover:bg-indigo-900/40 border border-slate-700 hover:border-indigo-500/50 transition"
                               >
-                                Approve ✓
+                                <img src={img} alt="Receipt" className="h-5 w-5 rounded object-cover" />
+                                <span className="font-semibold">View Screenshot 🖼️</span>
                               </button>
-                              {p.status !== 'FAILED' && (
+                            ) : (
+                              <span className="text-slate-500 italic text-[11px]">No image</span>
+                            )}
+                          </td>
+                          <td className="p-3.5">
+                            <span className={`rounded px-2 py-0.5 text-[10px] font-bold ${
+                              p.status === 'SUCCESS'
+                                ? 'bg-emerald-500/20 text-emerald-400'
+                                : p.status === 'FAILED'
+                                ? 'bg-rose-500/20 text-rose-400'
+                                : 'bg-amber-500/20 text-amber-400'
+                            }`}>
+                              {p.status}
+                            </span>
+                          </td>
+                          <td className="p-3.5">
+                            {p.status !== 'SUCCESS' ? (
+                              <div className="flex items-center gap-2">
                                 <button
-                                  onClick={() => handleRejectPayment(p.id)}
-                                  className="rounded bg-rose-600/80 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-rose-600 transition"
+                                  onClick={() => handleApprovePayment(p.id)}
+                                  className="rounded bg-emerald-600 px-3 py-1 text-[11px] font-bold text-white hover:bg-emerald-500 transition shadow"
                                 >
-                                  Reject ✗
+                                  Approve ✓
                                 </button>
-                              )}
-                            </div>
-                          ) : (
-                            <span className="text-emerald-400 font-bold text-[11px]">Verified ✓</span>
-                          )}
-                        </td>
-                      </tr>
-                    )
-                  })}
+                                {p.status !== 'FAILED' && (
+                                  <button
+                                    onClick={() => handleRejectPayment(p.id)}
+                                    className="rounded bg-rose-600/80 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-rose-600 transition"
+                                  >
+                                    Reject ✗
+                                  </button>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-emerald-400 font-bold text-[11px]">Verified ✓</span>
+                            )}
+                          </td>
+                        </tr>
+                      )
+                    })
+                  )}
                 </tbody>
+
               </table>
             </div>
           </div>
