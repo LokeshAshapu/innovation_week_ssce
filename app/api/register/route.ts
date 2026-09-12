@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { db, ensureTablesExist } from '@/lib/db'
 import { TeamRegistrationSchema } from '@/lib/types'
 import { createSession } from '@/lib/auth'
+import { sendRegistrationEmail } from '@/lib/email'
 
 export async function POST(request: Request) {
   try {
@@ -155,22 +156,21 @@ export async function POST(request: Request) {
       },
     })
 
-    // 9. Dispatch Styled Confirmation Email asynchronously in background (Non-blocking)
-    import('@/lib/email')
-      .then(({ sendRegistrationEmail }) => {
-        sendRegistrationEmail({
-          teamName: teamName.trim(),
-          teamCode,
-          paymentMethod: isCash ? 'CASH' : 'PHONEPE',
-          utr: utr || undefined,
-          receiptUrl: screenshotData || undefined,
-          members: membersList,
-          amount: regFee,
-        }).catch((emailErr) => {
-          console.error('Failed to send confirmation email:', emailErr)
-        })
+    // 9. Dispatch Styled Confirmation Email via Google SMTP
+    try {
+      const emailResult = await sendRegistrationEmail({
+        teamName: teamName.trim(),
+        teamCode,
+        paymentMethod: isCash ? 'CASH' : 'PHONEPE',
+        utr: utr || undefined,
+        receiptUrl: screenshotData || undefined,
+        members: membersList,
+        amount: regFee,
       })
-      .catch((err) => console.error('Email import error:', err))
+      console.log('[Register Route] Email dispatch result:', emailResult)
+    } catch (emailErr) {
+      console.error('[Register Route] Email dispatch error:', emailErr)
+    }
 
     // Save registration backup JSON for Vercel persistence
     try {
