@@ -107,7 +107,7 @@ export function ProgrammePreview() {
         {/* Selected Day Details Card */}
         <TiltCard className="p-8 space-y-6 shadow-2xl">
           <div className="space-y-1 border-b border-slate-800 pb-4">
-            <span className="text-xs font-mono font-bold text-indigo-400">DAY 0{activeData.day} • {activeData.date}</span>
+            <span className="text-xs font-mono font-bold text-indigo-400">Day-{activeData.day}</span>
             <h3 className="text-2xl font-black text-white">{activeData.title}</h3>
             <p className="text-xs text-slate-400 font-medium">Theme: {activeData.theme}</p>
           </div>

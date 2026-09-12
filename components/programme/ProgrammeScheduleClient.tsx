@@ -42,7 +42,7 @@ export function ProgrammeScheduleClient({ days }: { days: Day[] }) {
                   : 'bg-slate-900 border border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-white'
               }`}
             >
-              <span>DAY {day.dayNumber}</span>
+              <span>Day-{day.dayNumber}</span>
               <span className="hidden sm:inline opacity-75">| {day.title.split(' ')[0]}</span>
             </button>
           )
@@ -54,7 +54,7 @@ export function ProgrammeScheduleClient({ days }: { days: Day[] }) {
         <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 space-y-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="rounded-md bg-indigo-500/20 px-3 py-1 text-xs font-bold text-indigo-400">
-              DAY {currentDay.dayNumber} — {currentDay.date}
+              Day-{currentDay.dayNumber}
             </span>
             <span className="text-xs text-slate-400 font-mono">Official Programme Schedule</span>
           </div>
