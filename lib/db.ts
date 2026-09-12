@@ -251,7 +251,7 @@ export async function ensureTablesExist() {
           "collegeName" TEXT NOT NULL DEFAULT 'Sri Sivani College of Engineering (Autonomous), Srikakulam',
           "deptName" TEXT NOT NULL DEFAULT 'Department of CSE & AI-ML',
           "regFee" REAL NOT NULL DEFAULT 500,
-          "upiId" TEXT NOT NULL DEFAULT '8790846260@axl',
+          "upiId" TEXT NOT NULL DEFAULT 'srisivani.cse@upi',
           "recipientName" TEXT NOT NULL DEFAULT 'Sri Sivani Innovation Week',
           "phonePeEnabled" BOOLEAN NOT NULL DEFAULT 1,
           "regOpen" BOOLEAN NOT NULL DEFAULT 1,

@@ -71,8 +71,8 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
 
   // Settings state
   const [feeAmount, setFeeAmount] = useState(settings?.regFee || 200)
-  const [upiId, setUpiId] = useState(settings?.upiId || '8790846260@axl')
-  const [phonePeMobile, setPhonePeMobile] = useState('8790846260')
+  const [upiId, setUpiId] = useState(settings?.upiId || 'srisivani.cse@upi')
+  const [phonePeMobile, setPhonePeMobile] = useState('9876543210')
   const [qrCodeUrl, setQrCodeUrl] = useState('/images/phonepe_qr.jpg')
   const [resultsPublished, setResultsPublished] = useState(settings?.resultsPublished ?? true)
   const [settingsSavedMsg, setSettingsSavedMsg] = useState<string | null>(null)
@@ -1154,7 +1154,7 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
                 type="text"
                 value={phonePeMobile}
                 onChange={(e) => setPhonePeMobile(e.target.value)}
-                placeholder="e.g. 6301451462"
+                placeholder="e.g. 9876543210"
                 className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none"
               />
             </div>
