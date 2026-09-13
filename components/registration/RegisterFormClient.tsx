@@ -342,6 +342,24 @@ export function RegisterFormClient() {
           </div>
         )}
 
+        {/* Official WhatsApp Group Join Link */}
+        <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-5 text-xs text-left space-y-3">
+          <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+            <span>💬 Join Official WhatsApp Community Group</span>
+          </div>
+          <p className="text-slate-300 text-xs">
+            All registered team members must join the official WhatsApp group for live event updates, schedule announcements, and coordinator assistance:
+          </p>
+          <a
+            href="https://chat.whatsapp.com/BwfU1tEGYi3JaU15lxNCEu"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 w-full rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs py-3 px-4 shadow-lg transition"
+          >
+            <span>JOIN OFFICIAL WHATSAPP GROUP →</span>
+          </a>
+        </div>
+
         <div className="flex flex-col sm:flex-row gap-3 pt-2">
           <button
             onClick={() => router.push('/dashboard')}

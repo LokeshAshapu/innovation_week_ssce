@@ -107,7 +107,26 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* SECTION 19: VISUAL EVENT PROGRESS TRACKER */}
+        {/* Official WhatsApp Group Banner */}
+        <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+          <div className="space-y-1 text-center sm:text-left">
+            <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center justify-center sm:justify-start gap-1.5">
+              💬 OFFICIAL WHATSAPP COMMUNITY GROUP
+            </span>
+            <h3 className="text-base font-extrabold text-white">Join the WhatsApp Group for Live Event Announcements</h3>
+            <p className="text-xs text-slate-300">
+              Get real-time updates on schedules, lab workstation allocations, presentation queues, and coordinator assistance.
+            </p>
+          </div>
+          <a
+            href="https://chat.whatsapp.com/BwfU1tEGYi3JaU15lxNCEu"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-5 py-3 shadow-lg transition flex items-center gap-2"
+          >
+            <span>JOIN WHATSAPP GROUP →</span>
+          </a>
+        </div>
         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 space-y-6">
           <h2 className="text-base font-bold text-white flex items-center gap-2">
             <Calendar className="h-5 w-5 text-indigo-400" />

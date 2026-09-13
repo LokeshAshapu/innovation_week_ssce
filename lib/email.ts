@@ -140,6 +140,19 @@ export async function sendRegistrationEmail({
             }
           </div>
 
+          <!-- Official WhatsApp Group Join Link -->
+          <div style="background-color: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 12px; padding: 18px; margin-bottom: 20px; text-align: center;">
+            <h3 style="margin: 0 0 6px 0; font-size: 15px; color: #34d399;">
+              💬 Join Official WhatsApp Community Group
+            </h3>
+            <p style="font-size: 12px; color: #cbd5e1; margin: 0 0 12px 0; line-height: 1.5;">
+              All registered team members must join the official WhatsApp group for live event updates, schedule announcements, and coordinator assistance:
+            </p>
+            <a href="https://chat.whatsapp.com/BwfU1tEGYi3JaU15lxNCEu" style="display: inline-block; background-color: #10b981; color: #ffffff !important; font-weight: 800; font-size: 13px; padding: 10px 20px; border-radius: 8px; text-decoration: none;">
+              👉 Click Here to Join Official WhatsApp Group
+            </a>
+          </div>
+
           <!-- Team Login Credentials Box -->
           <div class="login-box">
             <h3 style="margin-top: 0; font-size: 14px; color: #818cf8; border-bottom: 1px solid #374151; padding-bottom: 8px;">
