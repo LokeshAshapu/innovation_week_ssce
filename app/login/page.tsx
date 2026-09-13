@@ -2,13 +2,14 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ShieldCheck, Key, ArrowRight, RefreshCw, AlertCircle } from 'lucide-react'
+import { ShieldCheck, Users, ArrowRight, RefreshCw, AlertCircle, Rocket, Key } from 'lucide-react'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
+  const [activeTab, setActiveTab] = useState<'STUDENT' | 'ADMIN'>('STUDENT')
+  const [loginInput, setLoginInput] = useState('')
   const [password, setPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
@@ -18,17 +19,19 @@ export default function LoginPage() {
     setErrorMsg(null)
     setIsSubmitting(true)
 
+    const payloadInput = activeTab === 'ADMIN' ? (loginInput || 'admin@srisivani.ac.in') : loginInput
+
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: payloadInput, password: password || 'student123' }),
       })
 
       const data = await res.json()
 
       if (!res.ok) {
-        setErrorMsg(data.error || 'Invalid login credentials')
+        setErrorMsg(data.error || 'Invalid login credentials. Please check your Team Code / Roll No / Email.')
         setIsSubmitting(false)
         return
       }
@@ -54,14 +57,55 @@ export default function LoginPage() {
 
       <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 flex flex-col items-center justify-center min-h-[75vh]">
         <div className="w-full max-w-md space-y-6">
+          
+          {/* Header Banner */}
           <div className="text-center space-y-2">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-xl shadow-indigo-600/30">
-              <ShieldCheck className="h-7 w-7" />
+              {activeTab === 'STUDENT' ? <Rocket className="h-7 w-7" /> : <ShieldCheck className="h-7 w-7" />}
             </div>
-            <h1 className="text-2xl font-black text-white sm:text-3xl">Admin Portal Access</h1>
+            <h1 className="text-2xl font-black text-white sm:text-3xl">
+              {activeTab === 'STUDENT' ? 'Student Team Portal' : 'Admin & Staff Portal'}
+            </h1>
             <p className="text-xs text-slate-400 font-medium">
-              Enter authorized administrator credentials to manage Innovation Week 2026.
+              {activeTab === 'STUDENT'
+                ? 'Access your team dashboard to submit ideas, prototypes & pitch decks.'
+                : 'Enter authorized administrator or evaluator credentials.'}
             </p>
+          </div>
+
+          {/* Tab Selection Switcher */}
+          <div className="grid grid-cols-2 p-1.5 rounded-2xl bg-slate-900 border border-slate-800 text-xs font-bold">
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab('STUDENT')
+                setErrorMsg(null)
+              }}
+              className={`py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 ${
+                activeTab === 'STUDENT'
+                  ? 'bg-indigo-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Users className="h-4 w-4" />
+              <span>Registered Team Login</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab('ADMIN')
+                setErrorMsg(null)
+              }}
+              className={`py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 ${
+                activeTab === 'ADMIN'
+                  ? 'bg-indigo-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <ShieldCheck className="h-4 w-4" />
+              <span>Admin / Staff Login</span>
+            </button>
           </div>
 
           {errorMsg && (
@@ -72,29 +116,65 @@ export default function LoginPage() {
           )}
 
           <form onSubmit={handleLoginSubmit} className="rounded-3xl border border-slate-800 bg-slate-900/90 p-6 sm:p-8 space-y-5 shadow-2xl backdrop-blur-xl">
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">Admin / Coordinator Email</label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@srisivani.ac.in"
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition"
-              />
-            </div>
+            {activeTab === 'STUDENT' ? (
+              <>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    Team Code, Student Roll No, or Email *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={loginInput}
+                    onChange={(e) => setLoginInput(e.target.value)}
+                    placeholder="e.g. IW-2026-1001 or 22CS1A0501"
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition"
+                  />
+                  <p className="text-[11px] text-indigo-400 mt-1.5 font-medium">
+                    💡 You can log in using your Team Code (e.g. IW-2026-1001), any member's Roll Number, or Leader email.
+                  </p>
+                </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">Password</label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition"
-              />
-            </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    Password (Default: <code className="text-indigo-400 font-mono">student123</code>)
+                  </label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="student123"
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition"
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">Admin / Coordinator Email</label>
+                  <input
+                    type="email"
+                    required
+                    value={loginInput}
+                    onChange={(e) => setLoginInput(e.target.value)}
+                    placeholder="admin@srisivani.ac.in"
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">Password</label>
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition"
+                  />
+                </div>
+              </>
+            )}
 
             <button
               type="submit"
@@ -102,7 +182,7 @@ export default function LoginPage() {
               className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 py-3.5 text-xs font-bold text-white shadow-xl hover:from-indigo-500 hover:to-violet-500 transition disabled:opacity-50"
             >
               {isSubmitting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
-              <span>Sign In to Admin Portal</span>
+              <span>{activeTab === 'STUDENT' ? 'Access Team Dashboard →' : 'Sign In to Admin Portal →'}</span>
             </button>
           </form>
         </div>
@@ -112,3 +192,4 @@ export default function LoginPage() {
     </div>
   )
 }
+
