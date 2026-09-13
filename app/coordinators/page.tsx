@@ -4,8 +4,8 @@ import { Footer } from '@/components/Footer'
 
 export default function CoordinatorsPage() {
   const studentCoordinators = [
-    { name: 'A. Lokesh', role: 'Student Lead Coordinator', day: 'Day 1 Coordinator' },
-    { name: 'K. Hareesh', role: 'Student Co-Coordinator', day: 'Day 1 Coordinator' },
+    { name: 'A. Lokesh', role: 'Student Coordinator', day: 'Day 1 Coordinator' },
+    { name: 'K. Hareesh', role: 'Student Coordinator', day: 'Day 1 Coordinator' },
     { name: 'B. Yogeswari', role: 'Student Coordinator', day: 'Day 2 Coordinator' },
     { name: 'K. Raghavendra', role: 'Student Coordinator', day: 'Day 2 Coordinator' },
     { name: 'P. Sony', role: 'Student Coordinator', day: 'Day 3 Coordinator' },
@@ -14,7 +14,7 @@ export default function CoordinatorsPage() {
     { name: 'Rami Naidu', role: 'Student Coordinator', day: 'Day 4 Coordinator' },
     { name: 'V. Aravind', role: 'Student Coordinator', day: 'Event Operations' },
     { name: 'K. Sharvan', role: 'Student Coordinator', day: 'Event Operations' },
-    { name: 'B. Prasad', role: 'Media Coordinator', day: 'Media & Documentation' },
+    { name: 'B. Prasad', role: 'Student Coordinator', day: 'Media & Documentation' },
   ]
 
   const facultyCoordinators = [

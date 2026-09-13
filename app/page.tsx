@@ -15,8 +15,8 @@ import { TiltCard } from '@/components/ui/TiltCard'
 
 export default function HomePage() {
   const studentCoordinators = [
-    { name: 'A. Lokesh', role: 'Student Lead Coordinator', day: 'Day 1 Lead' },
-    { name: 'K. Hareesh', role: 'Student Co-Coordinator', day: 'Day 1 Lead' },
+    { name: 'A. Lokesh', role: 'Student Coordinator', day: 'Day 1 Lead' },
+    { name: 'K. Hareesh', role: 'Student Coordinator', day: 'Day 1 Lead' },
     { name: 'B. Yogeswari', role: 'Student Coordinator', day: 'Day 2 Lead' },
     { name: 'K. Raghavendra', role: 'Student Coordinator', day: 'Day 2 Lead' },
     { name: 'P. Sony', role: 'Student Coordinator', day: 'Day 3 Lead' },
@@ -25,7 +25,7 @@ export default function HomePage() {
     { name: 'Rami Naidu', role: 'Student Coordinator', day: 'Day 4 Lead' },
     { name: 'V. Aravind', role: 'Student Coordinator', day: 'Operations' },
     { name: 'K. Sharvan', role: 'Student Coordinator', day: 'Operations' },
-    { name: 'B. Prasad', role: 'Media Coordinator', day: 'Media Lead' },
+    { name: 'B. Prasad', role: 'Student Coordinator', day: 'Media Lead' },
   ]
 
   const facultyCoordinators = [

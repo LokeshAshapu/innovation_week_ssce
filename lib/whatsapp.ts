@@ -1,4 +1,4 @@
-export const ORGANIZER_WHATSAPP_NUMBER = '919876543210' // Student Lead Coordinator WhatsApp
+export const ORGANIZER_WHATSAPP_NUMBER = '919876543210' // Student Coordinator WhatsApp
 
 export interface WhatsAppQueryInput {
   name: string
@@ -49,8 +49,7 @@ Sri Sivani College of Engineering (Autonomous), Srikakulam. Main Seminar Hall & 
 
   if (query.includes('coordinator') || query.includes('contact') || query.includes('help')) {
     return `📞 *Student & Faculty Coordinators*
-Student Leads: A. Lokesh & K. Hareesh
-Media Coordinator: B. Prasad
+Student Coordinators: A. Lokesh, K. Hareesh, B. Prasad & Team
 Faculty Lead: Prof. Janaki Bhai Madam (Dept of CSE & AI-ML)`
   }
 
