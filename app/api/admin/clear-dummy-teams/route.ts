@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { db, ensureTablesExist } from '@/lib/db'
+import { fetchTeamsFromCloudStore, saveTeamsToCloudStore } from '@/lib/cloudStore'
 
 const DUMMY_TEAM_NAMES = [
   'AgriSense AI',
@@ -21,14 +22,22 @@ export async function POST(request: Request) {
     const body = await request.json().catch(() => ({}))
     const { teamId, purgeAllSeed = false } = body
 
+    let cloudTeams = await fetchTeamsFromCloudStore()
+
     if (teamId) {
-      // Delete single specific team
+      const targetTeam = await db.team.findUnique({ where: { id: teamId } })
+      if (targetTeam) {
+        cloudTeams = cloudTeams.filter((t) => t.teamCode !== targetTeam.teamCode)
+        await saveTeamsToCloudStore(cloudTeams)
+      }
       await db.team.delete({ where: { id: teamId } })
       return NextResponse.json({ success: true, message: `Team deleted successfully.` })
     }
 
     if (purgeAllSeed) {
-      // Delete all seed dummy teams
+      cloudTeams = cloudTeams.filter((t) => !DUMMY_TEAM_NAMES.includes(t.teamName))
+      await saveTeamsToCloudStore(cloudTeams)
+
       const deletedCount = await db.team.deleteMany({
         where: {
           name: { in: DUMMY_TEAM_NAMES },
@@ -40,7 +49,9 @@ export async function POST(request: Request) {
       })
     }
 
-    // Default: purge known seed dummy teams
+    cloudTeams = cloudTeams.filter((t) => !DUMMY_TEAM_NAMES.includes(t.teamName))
+    await saveTeamsToCloudStore(cloudTeams)
+
     const result = await db.team.deleteMany({
       where: {
         name: { in: DUMMY_TEAM_NAMES },

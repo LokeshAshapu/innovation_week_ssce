@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 import path from 'path'
 import fs from 'fs'
+import { fetchTeamsFromCloudStore } from './cloudStore'
 
 function getDatabaseUrl() {
   if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
@@ -293,29 +294,12 @@ export async function ensureTablesExist() {
     const currentTeamCount = await db.team.count().catch(() => 0)
     if (currentTeamCount === 0 || !isInitialized) {
       try {
-        const candidatePaths = [
-          path.join(process.cwd(), 'prisma', 'persistent_teams.json'),
-          path.join(process.cwd(), 'persistent_teams.json'),
-          '/tmp/registrations_backup.json',
-        ]
-        let combinedList: any[] = []
-        for (const p of candidatePaths) {
-          if (fs.existsSync(p)) {
-            try {
-              const fileContent = fs.readFileSync(p, 'utf8')
-              const parsed = JSON.parse(fileContent || '[]')
-              if (Array.isArray(parsed)) {
-                combinedList = [...combinedList, ...parsed]
-              }
-            } catch {}
-          }
-        }
-
-        for (const item of combinedList) {
+        const cloudTeams = await fetchTeamsFromCloudStore()
+        for (const item of cloudTeams) {
           const exists = await db.team.findFirst({ where: { teamCode: item.teamCode } })
           if (!exists && item.membersList && item.membersList.length >= 3) {
             const isCash = item.paymentMethod === 'CASH'
-            await db.team.create({
+            const team = await db.team.create({
               data: {
                 teamCode: item.teamCode,
                 name: item.teamName,
@@ -348,6 +332,26 @@ export async function ensureTablesExist() {
                 },
               },
             }).catch((err) => console.warn('Rehydrate team note:', err))
+
+            // Create leader user account if missing
+            if (team) {
+              const leader = item.membersList.find((m: any) => m.isLeader) || item.membersList[0]
+              const leaderEmail = item.loginEmail || (leader.email ? leader.email.trim().toLowerCase() : `${item.teamName.toLowerCase().replace(/[^a-z0-9]/g, '')}@student.srisivani.ac.in`)
+              const pass = item.generatedPassword || `IW-${Math.floor(1000 + Math.random() * 9000)}`
+
+              const existingUser = await db.user.findUnique({ where: { email: leaderEmail } })
+              if (!existingUser) {
+                await db.user.create({
+                  data: {
+                    email: leaderEmail,
+                    name: leader.name.trim(),
+                    passwordHash: pass,
+                    role: 'STUDENT',
+                    teamId: team.id,
+                  }
+                }).catch(() => {})
+              }
+            }
           }
         }
       } catch (rErr) {

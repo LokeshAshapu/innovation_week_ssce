@@ -3,6 +3,7 @@ import { db, ensureTablesExist } from '@/lib/db'
 import { TeamRegistrationSchema } from '@/lib/types'
 import { createSession } from '@/lib/auth'
 import { sendRegistrationEmail } from '@/lib/email'
+import { fetchTeamsFromCloudStore, saveTeamsToCloudStore } from '@/lib/cloudStore'
 
 export async function POST(request: Request) {
   try {
@@ -183,16 +184,9 @@ export async function POST(request: Request) {
       console.error('[Register Route] Email dispatch error:', emailErr)
     }
 
-    // Save registration backup JSON for persistence
+    // Save registration backup JSON & Cloud Store for cross-Vercel container persistence
     try {
-      const fs = await import('fs')
-      const path = await import('path')
-      const candidateBackupPaths = [
-        '/tmp/registrations_backup.json',
-        path.join(process.cwd(), 'prisma', 'persistent_teams.json'),
-        path.join(process.cwd(), 'persistent_teams.json'),
-      ]
-
+      const existingTeams = await fetchTeamsFromCloudStore()
       const newEntry = {
         teamCode,
         teamName: teamName.trim(),
@@ -201,25 +195,16 @@ export async function POST(request: Request) {
         screenshotData,
         membersList,
         generatedPassword,
+        loginEmail: leaderEmail,
         createdAt: new Date().toISOString(),
       }
 
-      for (const backupPath of candidateBackupPaths) {
-        try {
-          let existingBackup: any[] = []
-          if (fs.existsSync(backupPath)) {
-            existingBackup = JSON.parse(fs.readFileSync(backupPath, 'utf8') || '[]')
-          }
-          if (!existingBackup.some((t) => t.teamCode === teamCode)) {
-            existingBackup.push(newEntry)
-            fs.writeFileSync(backupPath, JSON.stringify(existingBackup, null, 2))
-          }
-        } catch (fErr) {
-          console.warn('Backup path write note:', backupPath, fErr)
-        }
+      if (!existingTeams.some((t) => t.teamCode === teamCode)) {
+        existingTeams.push(newEntry)
+        await saveTeamsToCloudStore(existingTeams)
       }
     } catch (bErr) {
-      console.warn('Backup save note:', bErr)
+      console.warn('CloudStore save note:', bErr)
     }
 
     return NextResponse.json({

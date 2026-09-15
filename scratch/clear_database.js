@@ -80,7 +80,7 @@ async function clearDatabase() {
       },
     })
 
-    // 5. Clear backup JSON files
+    // 5. Clear backup JSON files & CloudStore
     const backupPaths = [
       path.join(__dirname, '..', 'prisma', 'persistent_teams.json'),
       path.join(__dirname, '..', 'persistent_teams.json'),
@@ -94,6 +94,21 @@ async function clearDatabase() {
       } catch (fErr) {
         console.warn(`Could not clear backup file ${bp}:`, fErr)
       }
+    }
+
+    try {
+      const STORE_URL = 'https://api.restful-api.dev/objects/ff808181a09d98f701a0a5afb71511bb'
+      await fetch(STORE_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'Innovation Week 2026 Production Teams Store',
+          data: { teams: [], lastSyncedAt: new Date().toISOString() }
+        })
+      })
+      console.log('Cleared Remote Cloud Store successfully.')
+    } catch (cErr) {
+      console.warn('Could not clear remote cloud store:', cErr)
     }
 
     console.log('✅ Database successfully cleared! TEAMS: 0, STUDENTS: 0.')
