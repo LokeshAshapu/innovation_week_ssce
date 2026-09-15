@@ -14,13 +14,13 @@ export async function POST(request: Request) {
     }
 
     const rawInput = body.email || body.username || body.adminEmail || ''
-    const password = body.password || 'admin123'
+    const password = body.password || 'student123'
     const cleanInput = rawInput.trim().toLowerCase()
 
     // Default to official admin email if empty or 'admin'
     const targetInput = cleanInput.length > 0 ? cleanInput : 'admin@srisivani.ac.in'
 
-    let user = null
+    let user: any = null
 
     // 1. Try finding User directly by email
     try {
@@ -49,29 +49,60 @@ export async function POST(request: Request) {
             include: { team: true },
           })
 
-          if (member) {
-            user = {
-              id: `user_${member.id}`,
-              name: member.name,
-              email: member.email || `${member.rollNumber.toLowerCase()}@student.srisivani.ac.in`,
-              role: 'STUDENT',
-              teamId: member.teamId,
-            } as any
+          let matchedTeam: any = null
+          let matchedMemberName: string = ''
+
+          if (member && member.team) {
+            matchedTeam = member.team
+            matchedMemberName = member.name
           } else {
             // Search team by teamCode
-            const team = await db.team.findFirst({
-              where: { teamCode: { equals: targetInput.toUpperCase() } },
+            matchedTeam = await db.team.findFirst({
+              where: {
+                OR: [
+                  { teamCode: { equals: targetInput.toUpperCase() } },
+                  { name: { equals: targetInput } },
+                ],
+              },
               include: { members: true },
             })
-            if (team) {
-              const leader = team.members.find((m) => m.isLeader) || team.members[0]
-              user = {
-                id: `user_team_${team.id}`,
-                name: team.name,
-                email: leader?.email || `${team.teamCode.toLowerCase()}@student.srisivani.ac.in`,
-                role: 'STUDENT',
-                teamId: team.id,
-              } as any
+            if (matchedTeam) {
+              const leader = matchedTeam.members.find((m: any) => m.isLeader) || matchedTeam.members[0]
+              matchedMemberName = leader?.name || matchedTeam.name
+            }
+          }
+
+          if (matchedTeam) {
+            // Check if a User record already exists for this team
+            user = await db.user.findFirst({
+              where: { teamId: matchedTeam.id },
+            })
+
+            if (!user) {
+              // Create a real User record in DB so getSession() finds it directly
+              const studentEmail = (member?.email && member.email.includes('@'))
+                ? member.email
+                : `${matchedTeam.teamCode.toLowerCase()}@student.srisivani.ac.in`
+
+              try {
+                user = await db.user.create({
+                  data: {
+                    email: studentEmail,
+                    name: matchedMemberName || matchedTeam.name,
+                    passwordHash: password || 'student123',
+                    role: 'STUDENT',
+                    teamId: matchedTeam.id,
+                  },
+                })
+              } catch (createErr) {
+                user = {
+                  id: `user_team_${matchedTeam.id}`,
+                  name: matchedMemberName || matchedTeam.name,
+                  email: studentEmail,
+                  role: 'STUDENT',
+                  teamId: matchedTeam.id,
+                }
+              }
             }
           }
         } catch (mErr) {
@@ -129,13 +160,23 @@ export async function POST(request: Request) {
           } as any
         }
       } else {
-        user = {
-          id: `student_gen_${Date.now()}`,
-          name: targetInput.split('@')[0] || 'Student Lead',
-          email: targetInput,
-          role: 'STUDENT',
-          teamId: null,
-        } as any
+        // Find any existing team as last fallback for generic student input
+        const firstTeam = await db.team.findFirst({ include: { members: true } })
+        if (firstTeam) {
+          const leader = firstTeam.members.find((m) => m.isLeader) || firstTeam.members[0]
+          user = {
+            id: `user_team_${firstTeam.id}`,
+            name: leader?.name || firstTeam.name,
+            email: leader?.email || `${firstTeam.teamCode.toLowerCase()}@student.srisivani.ac.in`,
+            role: 'STUDENT',
+            teamId: firstTeam.id,
+          } as any
+        } else {
+          return NextResponse.json(
+            { error: 'Invalid login details. No registered team found for this Roll Number, Team Code, or Email.' },
+            { status: 400 }
+          )
+        }
       }
     }
 
@@ -180,4 +221,5 @@ export async function POST(request: Request) {
     })
   }
 }
+
 

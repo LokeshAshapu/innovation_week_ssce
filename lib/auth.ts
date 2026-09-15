@@ -21,6 +21,7 @@ export async function getSession(): Promise<SessionUser | null> {
       }
     }
 
+    // 1. Primary DB User lookup by ID
     const user = await db.user.findUnique({
       where: { id: sessionCookie },
       select: {
@@ -32,15 +33,51 @@ export async function getSession(): Promise<SessionUser | null> {
       },
     })
 
-    if (!user) return null
-
-    return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role as SessionUser['role'],
-      teamId: user.teamId,
+    if (user) {
+      return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role as SessionUser['role'],
+        teamId: user.teamId,
+      }
     }
+
+    // 2. Fallback resolution if sessionCookie is a synthetic team/member ID or direct teamId
+    const cleanId = sessionCookie.replace(/^user_team_/, '').replace(/^user_/, '')
+    const team = await db.team.findFirst({
+      where: { OR: [{ id: cleanId }, { id: sessionCookie }] },
+      include: { members: true },
+    })
+
+    if (team) {
+      const leader = team.members.find((m) => m.isLeader) || team.members[0]
+      return {
+        id: sessionCookie,
+        name: leader?.name || team.name,
+        email: leader?.email || `${team.teamCode.toLowerCase()}@student.srisivani.ac.in`,
+        role: 'STUDENT',
+        teamId: team.id,
+      }
+    }
+
+    // 3. Fallback resolution for student roll numbers or synthetic student IDs
+    const member = await db.teamMember.findFirst({
+      where: { id: cleanId },
+      include: { team: true },
+    })
+
+    if (member) {
+      return {
+        id: sessionCookie,
+        name: member.name,
+        email: member.email || `${member.rollNumber.toLowerCase()}@student.srisivani.ac.in`,
+        role: 'STUDENT',
+        teamId: member.teamId,
+      }
+    }
+
+    return null
   } catch (error) {
     console.error('Session retrieval error:', error)
     return null
