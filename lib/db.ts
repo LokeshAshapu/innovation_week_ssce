@@ -24,7 +24,10 @@ function getDatabaseUrl() {
       console.warn('Vercel /tmp db copy notice:', err)
     }
   }
-  return process.env.DATABASE_URL || 'file:./storage.db'
+
+  // Use absolute path for local SQLite database file to ensure consistency across all Next.js routes
+  const absoluteDbPath = path.join(process.cwd(), 'prisma', 'storage.db')
+  return `file:${absoluteDbPath}`
 }
 
 const activeDbUrl = getDatabaseUrl()
@@ -50,7 +53,6 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db
 let isInitialized = false
 
 export async function ensureTablesExist() {
-  if (isInitialized) return
   try {
     const ddl = `
       CREATE TABLE IF NOT EXISTS "User" (
@@ -280,72 +282,77 @@ export async function ensureTablesExist() {
           FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
       );
     `
-    const statements = ddl.split(';').map((s) => s.trim()).filter((s) => s.length > 0)
-    for (const stmt of statements) {
-      await db.$executeRawUnsafe(stmt).catch((err) => console.warn('DDL init stmt note:', err))
+    if (!isInitialized) {
+      const statements = ddl.split(';').map((s) => s.trim()).filter((s) => s.length > 0)
+      for (const stmt of statements) {
+        await db.$executeRawUnsafe(stmt).catch((err) => console.warn('DDL init stmt note:', err))
+      }
     }
 
-    // Re-hydrate persistent registrations if available
-    try {
-      const candidatePaths = [
-        path.join(process.cwd(), 'prisma', 'persistent_teams.json'),
-        path.join(process.cwd(), 'persistent_teams.json'),
-        '/tmp/registrations_backup.json',
-      ]
-      let combinedList: any[] = []
-      for (const p of candidatePaths) {
-        if (fs.existsSync(p)) {
-          try {
-            const fileContent = fs.readFileSync(p, 'utf8')
-            const parsed = JSON.parse(fileContent || '[]')
-            if (Array.isArray(parsed)) {
-              combinedList = [...combinedList, ...parsed]
-            }
-          } catch {}
+    // Re-hydrate persistent registrations if database is empty or if initialized
+    const currentTeamCount = await db.team.count().catch(() => 0)
+    if (currentTeamCount === 0 || !isInitialized) {
+      try {
+        const candidatePaths = [
+          path.join(process.cwd(), 'prisma', 'persistent_teams.json'),
+          path.join(process.cwd(), 'persistent_teams.json'),
+          '/tmp/registrations_backup.json',
+        ]
+        let combinedList: any[] = []
+        for (const p of candidatePaths) {
+          if (fs.existsSync(p)) {
+            try {
+              const fileContent = fs.readFileSync(p, 'utf8')
+              const parsed = JSON.parse(fileContent || '[]')
+              if (Array.isArray(parsed)) {
+                combinedList = [...combinedList, ...parsed]
+              }
+            } catch {}
+          }
         }
-      }
 
-      for (const item of combinedList) {
-        const exists = await db.team.findFirst({ where: { teamCode: item.teamCode } })
-        if (!exists && item.membersList && item.membersList.length >= 3) {
-          const isCash = item.paymentMethod === 'CASH'
-          await db.team.create({
-            data: {
-              teamCode: item.teamCode,
-              name: item.teamName,
-              size: item.membersList.length,
-              status: 'PENDING',
-              paymentStatus: isCash ? 'CASH_PENDING' : 'VERIFICATION_REQUIRED',
-              currentStep: 1,
-              members: {
-                create: item.membersList.map((m: any, idx: number) => ({
-                  isLeader: m.isLeader !== undefined ? m.isLeader : idx === 0,
-                  name: m.name.trim(),
-                  rollNumber: m.rollNumber.trim().toUpperCase(),
-                  branch: m.branch,
-                  diplomaBranch: m.diplomaBranch || null,
-                  year: m.year,
-                  email: m.email || null,
-                  phone: m.phone || null,
-                })),
-              },
-              payments: {
-                create: {
-                  orderId: `ORD-${item.teamCode}-${Date.now().toString().slice(-4)}`,
-                  provider: isCash ? 'OFFLINE_CASH' : 'PHONEPE_UPI',
-                  amount: 200,
-                  utr: item.utr || null,
-                  receiptUrl: item.screenshotData || null,
-                  screenshotData: item.screenshotData || null,
-                  status: isCash ? 'PENDING' : 'VERIFICATION_REQUIRED',
+        for (const item of combinedList) {
+          const exists = await db.team.findFirst({ where: { teamCode: item.teamCode } })
+          if (!exists && item.membersList && item.membersList.length >= 3) {
+            const isCash = item.paymentMethod === 'CASH'
+            await db.team.create({
+              data: {
+                teamCode: item.teamCode,
+                name: item.teamName,
+                size: item.membersList.length,
+                status: 'PENDING',
+                paymentStatus: isCash ? 'CASH_PENDING' : 'VERIFICATION_REQUIRED',
+                currentStep: 1,
+                members: {
+                  create: item.membersList.map((m: any, idx: number) => ({
+                    isLeader: m.isLeader !== undefined ? m.isLeader : idx === 0,
+                    name: m.name.trim(),
+                    rollNumber: m.rollNumber.trim().toUpperCase(),
+                    branch: m.branch,
+                    diplomaBranch: m.diplomaBranch || null,
+                    year: m.year,
+                    email: m.email || null,
+                    phone: m.phone || null,
+                  })),
+                },
+                payments: {
+                  create: {
+                    orderId: `ORD-${item.teamCode}-${Date.now().toString().slice(-4)}`,
+                    provider: isCash ? 'OFFLINE_CASH' : 'PHONEPE_UPI',
+                    amount: 200,
+                    utr: item.utr || null,
+                    receiptUrl: item.screenshotData || null,
+                    screenshotData: item.screenshotData || null,
+                    status: isCash ? 'PENDING' : 'VERIFICATION_REQUIRED',
+                  },
                 },
               },
-            },
-          }).catch((err) => console.warn('Rehydrate team note:', err))
+            }).catch((err) => console.warn('Rehydrate team note:', err))
+          }
         }
+      } catch (rErr) {
+        console.warn('Backup rehydrate notice:', rErr)
       }
-    } catch (rErr) {
-      console.warn('Backup rehydrate notice:', rErr)
     }
     isInitialized = true
   } catch (e) {

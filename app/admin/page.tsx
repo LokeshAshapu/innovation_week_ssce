@@ -32,7 +32,7 @@ export default async function AdminPage() {
       db.team.count(),
       db.teamMember.count(),
       db.team.count({ where: { paymentStatus: 'SUCCESS' } }),
-      db.team.count({ where: { paymentStatus: { in: ['PENDING', 'INITIATED', 'VERIFICATION_REQUIRED'] } } }),
+      db.team.count({ where: { paymentStatus: { in: ['PENDING', 'INITIATED', 'VERIFICATION_REQUIRED', 'CASH_PENDING'] } } }),
       db.ideaSubmission.count(),
       db.prototypeSubmission.count(),
       db.mVPSubmission.count(),
