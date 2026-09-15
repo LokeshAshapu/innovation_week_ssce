@@ -94,6 +94,13 @@ export default async function AdminPage() {
             <h1 className="text-3xl font-extrabold text-white mt-1">Management Control Center</h1>
             <p className="text-xs text-slate-400">Sri Sivani College of Engineering • Dept of CSE & AI-ML</p>
           </div>
+
+          <a
+            href="/api/auth/logout"
+            className="inline-flex items-center gap-2 rounded-xl border border-rose-500/40 bg-rose-500/10 px-4 py-2.5 text-xs font-bold text-rose-300 hover:bg-rose-500/20 transition shrink-0"
+          >
+            <span>Logout Administrator 🚪</span>
+          </a>
         </div>
 
         <AdminDashboardClient stats={stats} teams={allTeams} payments={payments} settings={settings} />

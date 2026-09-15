@@ -112,10 +112,19 @@ export default async function DashboardPage() {
             </p>
           </div>
 
-          <div className="rounded-xl bg-slate-950/80 p-4 border border-slate-800 space-y-1 text-right text-xs shrink-0">
-            <span className="text-slate-400">Overall Event Progress</span>
-            <p className="text-2xl font-black text-indigo-400">{Math.round(progressPercent)}%</p>
-            <span className="text-[10px] text-slate-400">Step {currentStep} of 5 Completed</span>
+          <div className="flex flex-col sm:flex-row items-end sm:items-center gap-4 shrink-0">
+            <div className="rounded-xl bg-slate-950/80 p-4 border border-slate-800 space-y-1 text-right text-xs">
+              <span className="text-slate-400">Overall Event Progress</span>
+              <p className="text-2xl font-black text-indigo-400">{Math.round(progressPercent)}%</p>
+              <span className="text-[10px] text-slate-400">Step {currentStep} of 5 Completed</span>
+            </div>
+
+            <a
+              href="/api/auth/logout"
+              className="rounded-xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-xs font-bold text-rose-300 hover:bg-rose-500/20 transition"
+            >
+              <span>Logout 🚪</span>
+            </a>
           </div>
         </div>
 

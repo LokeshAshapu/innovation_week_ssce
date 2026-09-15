@@ -2,8 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { Rocket, ShieldCheck, Menu, X, MessageSquare, Lock } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Rocket, ShieldCheck, Menu, X, MessageSquare, Lock, LogOut, UserCheck } from 'lucide-react'
 import { WhatsAppQueryModal } from '@/components/WhatsAppQueryModal'
 
 export function Navbar() {
@@ -12,6 +12,38 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [waModalOpen, setWaModalOpen] = useState(false)
   const [logoClicks, setLogoClicks] = useState<number[]>([])
+
+  // Dynamic user session state
+  const [sessionUser, setSessionUser] = useState<any | null>(null)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.user) {
+          setSessionUser(data.user)
+        } else {
+          setSessionUser(null)
+        }
+      })
+      .catch((err) => console.warn('Navbar session fetch note:', err))
+  }, [pathname])
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true)
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+      setSessionUser(null)
+      router.push('/login')
+      router.refresh()
+    } catch (err) {
+      console.error(err)
+      window.location.href = '/login'
+    } finally {
+      setIsLoggingOut(false)
+    }
+  }
 
   const navLinks = [
     { href: '/', label: 'Home' },
@@ -32,6 +64,8 @@ export function Navbar() {
       router.push('/login')
     }
   }
+
+  const isAdminOrStaff = sessionUser?.role === 'ADMIN' || sessionUser?.role === 'COORDINATOR' || sessionUser?.role === 'FACULTY'
 
   return (
     <>
@@ -87,21 +121,55 @@ export function Navbar() {
               <span>WhatsApp Help</span>
             </button>
 
-            <Link
-              href="/login"
-              className="flex items-center gap-1.5 rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-3 py-1.5 text-xs font-semibold text-indigo-300 transition hover:bg-indigo-500/20"
-            >
-              <Lock className="h-3.5 w-3.5" />
-              <span>Team Login</span>
-            </Link>
+            {sessionUser ? (
+              <>
+                {isAdminOrStaff ? (
+                  <Link
+                    href="/admin"
+                    className="flex items-center gap-1.5 rounded-lg border border-indigo-500/40 bg-indigo-500/20 px-3 py-1.5 text-xs font-bold text-indigo-300 transition hover:bg-indigo-500/30"
+                  >
+                    <ShieldCheck className="h-3.5 w-3.5 text-indigo-400" />
+                    <span>Admin Panel 🛡️</span>
+                  </Link>
+                ) : (
+                  <Link
+                    href="/dashboard"
+                    className="flex items-center gap-1.5 rounded-lg border border-indigo-500/40 bg-indigo-500/20 px-3 py-1.5 text-xs font-bold text-indigo-300 transition hover:bg-indigo-500/30"
+                  >
+                    <UserCheck className="h-3.5 w-3.5 text-indigo-400" />
+                    <span>Team Dashboard 🚀</span>
+                  </Link>
+                )}
 
-            <Link
-              href="/register"
-              className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-md shadow-indigo-600/20 transition hover:from-indigo-500 hover:to-violet-500"
-            >
-              <Rocket className="h-3.5 w-3.5" />
-              <span>Register Team</span>
-            </Link>
+                <button
+                  onClick={handleLogout}
+                  disabled={isLoggingOut}
+                  className="flex items-center gap-1.5 rounded-lg border border-rose-500/40 bg-rose-500/10 px-3 py-1.5 text-xs font-bold text-rose-300 transition hover:bg-rose-500/20 disabled:opacity-50"
+                  title="Sign out of current account"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                  <span>{isLoggingOut ? 'Logging out...' : 'Logout 🚪'}</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="flex items-center gap-1.5 rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-3 py-1.5 text-xs font-semibold text-indigo-300 transition hover:bg-indigo-500/20"
+                >
+                  <Lock className="h-3.5 w-3.5" />
+                  <span>Team Login</span>
+                </Link>
+
+                <Link
+                  href="/register"
+                  className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-md shadow-indigo-600/20 transition hover:from-indigo-500 hover:to-violet-500"
+                >
+                  <Rocket className="h-3.5 w-3.5" />
+                  <span>Register Team</span>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile / Tablet Menu Toggle */}
@@ -131,34 +199,72 @@ export function Navbar() {
               ))}
               
               <div className="mt-2 pt-3 border-t border-slate-800 flex flex-col gap-2">
-                <Link
-                  href="/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full flex items-center justify-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-500/10 py-2.5 text-xs font-bold text-indigo-300"
-                >
-                  <Lock className="h-4 w-4" />
-                  <span>Team Login / Dashboard</span>
-                </Link>
+                {sessionUser ? (
+                  <>
+                    {isAdminOrStaff ? (
+                      <Link
+                        href="/admin"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="w-full flex items-center justify-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-500/20 py-2.5 text-xs font-bold text-indigo-300"
+                      >
+                        <ShieldCheck className="h-4 w-4" />
+                        <span>Admin Control Center 🛡️</span>
+                      </Link>
+                    ) : (
+                      <Link
+                        href="/dashboard"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="w-full flex items-center justify-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-500/20 py-2.5 text-xs font-bold text-indigo-300"
+                      >
+                        <UserCheck className="h-4 w-4" />
+                        <span>Team Dashboard 🚀</span>
+                      </Link>
+                    )}
 
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false)
-                    setWaModalOpen(true)
-                  }}
-                  className="w-full flex items-center justify-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 py-2.5 text-xs font-bold text-emerald-400"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  <span>Ask on WhatsApp</span>
-                </button>
+                    <button
+                      onClick={() => {
+                        setMobileMenuOpen(false)
+                        handleLogout()
+                      }}
+                      disabled={isLoggingOut}
+                      className="w-full flex items-center justify-center gap-2 rounded-lg border border-rose-500/40 bg-rose-500/10 py-2.5 text-xs font-bold text-rose-300"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>{isLoggingOut ? 'Logging out...' : 'Logout 🚪'}</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="w-full flex items-center justify-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-500/10 py-2.5 text-xs font-bold text-indigo-300"
+                    >
+                      <Lock className="h-4 w-4" />
+                      <span>Team Login / Dashboard</span>
+                    </Link>
 
-                <Link
-                  href="/register"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full flex items-center justify-center gap-2 rounded-lg bg-indigo-600 py-2.5 text-xs font-bold text-white shadow-lg"
-                >
-                  <Rocket className="h-4 w-4" />
-                  <span>Register Team</span>
-                </Link>
+                    <button
+                      onClick={() => {
+                        setMobileMenuOpen(false)
+                        setWaModalOpen(true)
+                      }}
+                      className="w-full flex items-center justify-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 py-2.5 text-xs font-bold text-emerald-400"
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                      <span>Ask on WhatsApp</span>
+                    </button>
+
+                    <Link
+                      href="/register"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="w-full flex items-center justify-center gap-2 rounded-lg bg-indigo-600 py-2.5 text-xs font-bold text-white shadow-lg"
+                    >
+                      <Rocket className="h-4 w-4" />
+                      <span>Register Team</span>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -170,3 +276,4 @@ export function Navbar() {
     </>
   )
 }
+
