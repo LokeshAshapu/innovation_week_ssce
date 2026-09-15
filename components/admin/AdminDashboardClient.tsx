@@ -959,7 +959,7 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
               Live Pitch Manager (2 Min Pitch + 1 Min Q&A)
             </span>
             <h2 className="text-2xl font-extrabold text-white">Live Presentation Timer</h2>
-            <p className="text-xs text-slate-400">Current Pitching Team: <strong className="text-white">{teams[currentQueueIndex]?.name || 'AgriSense AI'}</strong></p>
+            <p className="text-xs text-slate-400">Current Pitching Team: <strong className="text-white">{teams[currentQueueIndex]?.name || 'No team in queue'}</strong></p>
           </div>
 
           {/* Big Countdown Timer */}
