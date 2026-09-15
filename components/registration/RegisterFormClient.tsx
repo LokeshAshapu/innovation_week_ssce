@@ -74,9 +74,12 @@ export function RegisterFormClient() {
     orderId: string
     amount: number
     paymentMethod: 'CASH' | 'PHONEPE'
+    generatedPassword?: string
+    loginEmail?: string
   } | null>(null)
 
   const [copied, setCopied] = useState(false)
+  const [copiedCreds, setCopiedCreds] = useState(false)
 
   // Dynamic customSettings configured from Admin Panel
   const [customSettings, setCustomSettings] = useState<{
@@ -162,6 +165,8 @@ export function RegisterFormClient() {
         orderId: data.orderId,
         amount: data.amount || 200,
         paymentMethod: data.paymentMethod || paymentMethod,
+        generatedPassword: data.generatedPassword,
+        loginEmail: data.loginEmail || leader.email,
       })
 
       setStep('SUCCESS')
@@ -289,6 +294,9 @@ export function RegisterFormClient() {
 
   if (step === 'SUCCESS' && registeredData) {
     const isCash = registeredData.paymentMethod === 'CASH'
+    const generatedPass = registeredData.generatedPassword || 'IW-8492'
+    const loginMail = registeredData.loginEmail || leader.email || `${registeredData.teamCode.toLowerCase()}@student.srisivani.ac.in`
+
     return (
       <div className="rounded-2xl border border-indigo-500/40 bg-slate-900 p-8 space-y-6 text-center max-w-xl mx-auto shadow-2xl">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
@@ -298,15 +306,51 @@ export function RegisterFormClient() {
         <div className="space-y-2">
           <h2 className="text-2xl font-extrabold text-white">Team Registration Submitted! 🎉</h2>
           <p className="text-xs text-slate-300">
-            A confirmation email has been dispatched from <strong className="text-indigo-400">lokeshashapu@gmail.com</strong> to your team emails!
+            A confirmation email with your login credentials has been dispatched from <strong className="text-indigo-400">lokeshashapu@gmail.com</strong>!
+          </p>
+        </div>
+
+        {/* TEAM PORTAL LOGIN CREDENTIALS BOX */}
+        <div className="rounded-2xl border border-indigo-500/50 bg-gradient-to-br from-slate-950 via-indigo-950/40 to-slate-950 p-5 space-y-3 text-xs text-left shadow-xl">
+          <div className="flex items-center justify-between border-b border-indigo-500/30 pb-2.5">
+            <span className="font-extrabold text-indigo-300 flex items-center gap-1.5 text-sm">
+              🔑 Your Team Portal Login Credentials
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                const credText = `Team Code: ${registeredData.teamCode}\nLogin Email: ${loginMail}\nPassword: ${generatedPass}`
+                navigator.clipboard.writeText(credText)
+                setCopiedCreds(true)
+                setTimeout(() => setCopiedCreds(false), 2500)
+              }}
+              className="inline-flex items-center gap-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 font-bold text-white text-[11px] transition shadow"
+            >
+              {copiedCreds ? <Check className="h-3.5 w-3.5 text-emerald-300" /> : <Copy className="h-3.5 w-3.5" />}
+              <span>{copiedCreds ? 'Copied Credentials!' : 'Copy Credentials'}</span>
+            </button>
+          </div>
+
+          <div className="space-y-2 pt-1 font-mono">
+            <div className="flex justify-between items-center bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+              <span className="text-slate-400 font-sans">Team Code:</span>
+              <strong className="text-indigo-400 text-sm font-bold">{registeredData.teamCode}</strong>
+            </div>
+            <div className="flex justify-between items-center bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+              <span className="text-slate-400 font-sans">Login Email / Team ID:</span>
+              <strong className="text-slate-200 text-xs">{loginMail}</strong>
+            </div>
+            <div className="flex justify-between items-center bg-indigo-950/80 p-2.5 rounded-lg border border-indigo-500/40">
+              <span className="text-indigo-300 font-sans font-bold">Auto-Generated Password:</span>
+              <strong className="text-emerald-400 text-base font-extrabold tracking-wider">{generatedPass}</strong>
+            </div>
+          </div>
+          <p className="text-[11px] text-amber-300/90 font-medium pt-1">
+            ⚠️ Please save these login credentials! You need your Team Code or Email and this password to access your Team Dashboard.
           </p>
         </div>
 
         <div className="rounded-xl bg-slate-950 p-5 border border-slate-800 space-y-3 text-xs text-left">
-          <div className="flex justify-between border-b border-slate-800 pb-2">
-            <span className="text-slate-400">Team Code:</span>
-            <strong className="font-mono text-indigo-400 text-sm">{registeredData.teamCode}</strong>
-          </div>
           <div className="flex justify-between border-b border-slate-800 pb-2">
             <span className="text-slate-400">Team Name:</span>
             <strong className="text-white">{teamName}</strong>
@@ -326,7 +370,7 @@ export function RegisterFormClient() {
           <div className="flex justify-between">
             <span className="text-slate-400">Confirmation Mail:</span>
             <span className="text-indigo-300 font-mono flex items-center gap-1">
-              <Mail className="h-3.5 w-3.5 text-indigo-400" /> Sent from lokeshashapu@gmail.com
+              <Mail className="h-3.5 w-3.5 text-indigo-400" /> Sent to all members
             </span>
           </div>
         </div>

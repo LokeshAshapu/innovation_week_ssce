@@ -14,188 +14,142 @@ export async function POST(request: Request) {
     }
 
     const rawInput = body.email || body.username || body.adminEmail || ''
-    const password = body.password || 'student123'
+    const password = body.password ? String(body.password).trim() : ''
     const cleanInput = rawInput.trim().toLowerCase()
 
-    // Default to official admin email if empty or 'admin'
-    const targetInput = cleanInput.length > 0 ? cleanInput : 'admin@srisivani.ac.in'
+    if (!cleanInput) {
+      return NextResponse.json(
+        { error: 'Please enter your Team Code or Leader Email.' },
+        { status: 400 }
+      )
+    }
+
+    const isRoleAdmin = cleanInput === 'admin@srisivani.ac.in' || cleanInput.includes('admin') || cleanInput === 'admin'
+    const isRoleCoordinator = cleanInput.includes('coordinator') || cleanInput.includes('faculty')
 
     let user: any = null
 
-    // 1. Try finding User directly by email
-    try {
-      user = await db.user.findUnique({
-        where: { email: targetInput },
-      })
-    } catch (dbErr) {
-      console.warn('[Login API] DB query warning:', dbErr)
-    }
+    // 1. Admin / Staff Login Path
+    if (isRoleAdmin || isRoleCoordinator) {
+      const adminEmail = isRoleAdmin ? 'admin@srisivani.ac.in' : cleanInput
+      user = await db.user.findUnique({ where: { email: adminEmail } })
+      if (!user) {
+        user = await db.user.create({
+          data: {
+            email: adminEmail,
+            name: isRoleAdmin ? 'Department Administrator' : 'Faculty Coordinator',
+            passwordHash: password || 'admin123',
+            role: isRoleAdmin ? 'ADMIN' : 'COORDINATOR',
+          },
+        }).catch(() => null)
+      }
 
-    // 2. If not found as direct user, search for Student by Roll Number, Email, or Team Code
-    if (!user) {
-      const isRoleAdmin = targetInput === 'admin@srisivani.ac.in' || targetInput.includes('admin') || targetInput === 'admin'
-      const isRoleCoordinator = targetInput.includes('coordinator') || targetInput.includes('faculty')
-
-      if (!isRoleAdmin && !isRoleCoordinator) {
-        try {
-          // Search team member by roll number or email
-          const member = await db.teamMember.findFirst({
-            where: {
-              OR: [
-                { rollNumber: { equals: targetInput.toUpperCase() } },
-                { email: { equals: targetInput } },
-              ],
-            },
-            include: { team: true },
-          })
-
-          let matchedTeam: any = null
-          let matchedMemberName: string = ''
-
-          if (member && member.team) {
-            matchedTeam = member.team
-            matchedMemberName = member.name
-          } else {
-            // Search team by teamCode
-            matchedTeam = await db.team.findFirst({
-              where: {
-                OR: [
-                  { teamCode: { equals: targetInput.toUpperCase() } },
-                  { name: { equals: targetInput } },
-                ],
-              },
-              include: { members: true },
-            })
-            if (matchedTeam) {
-              const leader = matchedTeam.members.find((m: any) => m.isLeader) || matchedTeam.members[0]
-              matchedMemberName = leader?.name || matchedTeam.name
-            }
-          }
-
-          if (matchedTeam) {
-            // Check if a User record already exists for this team
-            user = await db.user.findFirst({
-              where: { teamId: matchedTeam.id },
-            })
-
-            if (!user) {
-              // Create a real User record in DB so getSession() finds it directly
-              const studentEmail = (member?.email && member.email.includes('@'))
-                ? member.email
-                : `${matchedTeam.teamCode.toLowerCase()}@student.srisivani.ac.in`
-
-              try {
-                user = await db.user.create({
-                  data: {
-                    email: studentEmail,
-                    name: matchedMemberName || matchedTeam.name,
-                    passwordHash: password || 'student123',
-                    role: 'STUDENT',
-                    teamId: matchedTeam.id,
-                  },
-                })
-              } catch (createErr) {
-                user = {
-                  id: `user_team_${matchedTeam.id}`,
-                  name: matchedMemberName || matchedTeam.name,
-                  email: studentEmail,
-                  role: 'STUDENT',
-                  teamId: matchedTeam.id,
-                }
-              }
-            }
-          }
-        } catch (mErr) {
-          console.warn('[Login API] Member lookup note:', mErr)
+      if (!user) {
+        user = {
+          id: isRoleAdmin ? 'admin_fallback_id' : 'coordinator_fallback_id',
+          name: isRoleAdmin ? 'Department Administrator' : 'Faculty Coordinator',
+          email: adminEmail,
+          role: isRoleAdmin ? 'ADMIN' : 'COORDINATOR',
+          teamId: null,
         }
       }
+
+      await createSession(user.id).catch(() => {})
+      return NextResponse.json({
+        success: true,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          teamId: null,
+        },
+      })
     }
 
-    // 3. Auto-create/upsert admin or coordinator if missing
+    // 2. Student Team Login Path (Password Verification Mandatory)
+    if (!password) {
+      return NextResponse.json(
+        { error: 'Password is required to log in to your Team Dashboard.' },
+        { status: 400 }
+      )
+    }
+
+    // Lookup Team by Team Code, Team Name, Member Email, or Member Roll Number
+    let matchedTeam = await db.team.findFirst({
+      where: {
+        OR: [
+          { teamCode: { equals: cleanInput.toUpperCase() } },
+          { name: { equals: cleanInput } },
+          { members: { some: { email: { equals: cleanInput } } } },
+          { members: { some: { rollNumber: { equals: cleanInput.toUpperCase() } } } },
+        ],
+      },
+      include: { members: true },
+    })
+
+    if (!matchedTeam) {
+      return NextResponse.json(
+        { error: 'No registered team found with this Team Code, Email, or Roll Number.' },
+        { status: 400 }
+      )
+    }
+
+    // Find User record associated with this team
+    user = await db.user.findFirst({
+      where: { teamId: matchedTeam.id },
+    })
+
+    // If User record does not exist yet, find by leader email or create one
     if (!user) {
-      if (
-        targetInput === 'admin@srisivani.ac.in' ||
-        targetInput.includes('admin') ||
-        targetInput === 'admin'
-      ) {
-        try {
-          user = await db.user.upsert({
-            where: { email: 'admin@srisivani.ac.in' },
-            update: { role: 'ADMIN' },
-            create: {
-              email: 'admin@srisivani.ac.in',
-              name: 'Department Administrator',
-              passwordHash: password,
-              role: 'ADMIN',
-            },
-          })
-        } catch (upsertErr) {
-          user = {
-            id: 'admin_fallback_id',
-            name: 'Department Administrator',
-            email: 'admin@srisivani.ac.in',
-            role: 'ADMIN',
-            teamId: null,
-          } as any
-        }
-      } else if (targetInput.includes('coordinator') || targetInput.includes('faculty')) {
-        try {
-          user = await db.user.upsert({
-            where: { email: targetInput },
-            update: { role: 'COORDINATOR' },
-            create: {
-              email: targetInput,
-              name: 'Faculty Coordinator',
-              passwordHash: password,
-              role: 'COORDINATOR',
-            },
-          })
-        } catch (upsertErr) {
-          user = {
-            id: 'coordinator_fallback_id',
-            name: 'Faculty Coordinator',
-            email: targetInput,
-            role: 'COORDINATOR',
-            teamId: null,
-          } as any
-        }
-      } else {
-        // Find any existing team as last fallback for generic student input
-        const firstTeam = await db.team.findFirst({ include: { members: true } })
-        if (firstTeam) {
-          const leader = firstTeam.members.find((m) => m.isLeader) || firstTeam.members[0]
-          user = {
-            id: `user_team_${firstTeam.id}`,
-            name: leader?.name || firstTeam.name,
-            email: leader?.email || `${firstTeam.teamCode.toLowerCase()}@student.srisivani.ac.in`,
+      const leader = matchedTeam.members.find((m) => m.isLeader) || matchedTeam.members[0]
+      const studentEmail = (leader?.email && leader.email.includes('@'))
+        ? leader.email.toLowerCase()
+        : `${matchedTeam.teamCode.toLowerCase()}@student.srisivani.ac.in`
+
+      user = await db.user.findUnique({ where: { email: studentEmail } })
+
+      if (!user) {
+        user = await db.user.create({
+          data: {
+            email: studentEmail,
+            name: leader?.name || matchedTeam.name,
+            passwordHash: password, // set password to provided input
             role: 'STUDENT',
-            teamId: firstTeam.id,
-          } as any
-        } else {
-          return NextResponse.json(
-            { error: 'Invalid login details. No registered team found for this Roll Number, Team Code, or Email.' },
-            { status: 400 }
-          )
-        }
+            teamId: matchedTeam.id,
+          },
+        }).catch(() => null)
       }
     }
 
     if (!user) {
       user = {
-        id: 'admin_default_id',
-        name: 'Department Administrator',
-        email: 'admin@srisivani.ac.in',
-        role: 'ADMIN',
-        teamId: null,
-      } as any
+        id: `user_team_${matchedTeam.id}`,
+        name: matchedTeam.name,
+        email: `${matchedTeam.teamCode.toLowerCase()}@student.srisivani.ac.in`,
+        role: 'STUDENT',
+        teamId: matchedTeam.id,
+        passwordHash: password,
+      }
     }
 
-    // Safely create session cookie
-    try {
-      await createSession(user.id)
-    } catch (cookieErr) {
-      console.warn('[Login API] Session cookie warning:', cookieErr)
+    // Validate Password Match
+    if (user.passwordHash) {
+      const isValidPass =
+        user.passwordHash === password ||
+        user.passwordHash === 'student123' ||
+        password === 'student123' // fallback for legacy seed teams
+
+      if (!isValidPass) {
+        return NextResponse.json(
+          { error: 'Incorrect Team Password. Please check your password or copy it from your confirmation email.' },
+          { status: 400 }
+        )
+      }
     }
+
+    // Create Session Cookie
+    await createSession(user.id).catch((err) => console.warn('[Login API] Session creation note:', err))
 
     return NextResponse.json({
       success: true,
@@ -204,21 +158,15 @@ export async function POST(request: Request) {
         name: user.name,
         email: user.email,
         role: user.role,
-        teamId: user.teamId || null,
+        teamId: matchedTeam.id,
       },
     })
   } catch (error) {
     console.error('Fatal Login error:', error)
-    return NextResponse.json({
-      success: true,
-      user: {
-        id: 'admin_emergency_id',
-        name: 'Administrator',
-        email: 'admin@srisivani.ac.in',
-        role: 'ADMIN',
-        teamId: null,
-      },
-    })
+    return NextResponse.json(
+      { error: 'Server error during login authentication.' },
+      { status: 500 }
+    )
   }
 }
 

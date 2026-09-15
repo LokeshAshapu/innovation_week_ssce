@@ -17,8 +17,18 @@ export default async function DashboardPage() {
 
   let team: any = null
 
+  let announcements: any[] = []
+  let eventSettings: any = null
+
   try {
     await ensureTablesExist()
+    announcements = await db.announcement.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+    }).catch(() => [])
+
+    eventSettings = await db.eventSettings.findFirst({ where: { id: '1' } }).catch(() => null)
+
     // Find team for current user or default to AgriSense AI team
     team = session.teamId
       ? await db.team.findUnique({
@@ -74,6 +84,8 @@ export default async function DashboardPage() {
 
   const progressPercent = (currentStep / 5) * 100
 
+  const { TeamDashboardClient } = await import('@/components/dashboard/TeamDashboardClient')
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">
       <Navbar />
@@ -106,6 +118,9 @@ export default async function DashboardPage() {
             <span className="text-[10px] text-slate-400">Step {currentStep} of 5 Completed</span>
           </div>
         </div>
+
+        {/* Live Winner Banner, Admin Announcements & PDF Certificates */}
+        <TeamDashboardClient team={team} announcements={announcements} eventSettings={eventSettings} />
 
         {/* Official WhatsApp Group Banner */}
         <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">

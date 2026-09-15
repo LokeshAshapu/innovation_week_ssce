@@ -78,10 +78,13 @@ export async function POST(request: Request) {
       teamCode = `IW-2026-${codeNum}`
     }
 
-    // 6. Create or retrieve User Account for Team Leader
+    // 6. Create or retrieve User Account for Team Leader with Auto-Generated Password
     const leaderEmail = leader.email && leader.email.trim() !== ''
       ? leader.email.trim().toLowerCase()
       : `${teamName.toLowerCase().replace(/[^a-z0-9]/g, '')}@student.srisivani.ac.in`
+
+    // Generate random 6-character alphanumeric password (e.g. IW-8492)
+    const generatedPassword = `IW-${Math.floor(1000 + Math.random() * 9000)}`
 
     let user = await db.user.findUnique({ where: { email: leaderEmail } })
     if (!user) {
@@ -89,10 +92,16 @@ export async function POST(request: Request) {
         data: {
           email: leaderEmail,
           name: leader.name.trim(),
-          passwordHash: 'student123',
+          passwordHash: generatedPassword,
           role: 'STUDENT',
         },
       })
+    } else {
+      // Update password with generated password for fresh registration
+      await db.user.update({
+        where: { id: user.id },
+        data: { passwordHash: generatedPassword },
+      }).catch((err) => console.warn('User update note:', err))
     }
 
     const { paymentMethod = 'PHONEPE', utr, receiptUrl, screenshotData: screenshotBody } = body
@@ -166,6 +175,8 @@ export async function POST(request: Request) {
         receiptUrl: screenshotData || undefined,
         members: membersList,
         amount: regFee,
+        loginEmail: leaderEmail,
+        loginPassword: generatedPassword,
       })
       console.log('[Register Route] Email dispatch result:', emailResult)
     } catch (emailErr) {
@@ -189,6 +200,7 @@ export async function POST(request: Request) {
         utr: utr || null,
         screenshotData,
         membersList,
+        generatedPassword,
         createdAt: new Date().toISOString(),
       }
 
@@ -217,6 +229,8 @@ export async function POST(request: Request) {
       orderId,
       amount: regFee,
       paymentMethod,
+      generatedPassword,
+      loginEmail: leaderEmail,
     })
   } catch (error) {
     console.error('Registration server error:', error)

@@ -244,6 +244,27 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
     }
   }
 
+  // Assign Team Award (1st Place Winner, 2nd Place, 3rd Place, etc.)
+  const handleAssignTeamAward = async (teamId: string, awardType: string) => {
+    try {
+      const res = await fetch('/api/admin/set-team-award', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teamId, awardType }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        alert(`🏆 Award "${awardType}" assigned successfully! This updates live in the team login dashboard.`)
+        window.location.reload()
+      } else {
+        alert(data.error || 'Failed to assign award.')
+      }
+    } catch (e) {
+      console.error(e)
+      alert('Network error while setting team award.')
+    }
+  }
+
   // Announcement Publish handler
   const handlePublishAnnouncement = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -387,6 +408,15 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
           <span>Live Presentation Timer (3 Min)</span>
         </button>
 
+        <button
+          onClick={() => setActiveTab('ANNOUNCEMENTS')}
+          className={`rounded-xl px-4 py-2 text-xs font-bold transition flex items-center gap-2 ${
+            activeTab === 'ANNOUNCEMENTS' ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-400 hover:text-white'
+          }`}
+        >
+          <Bell className="h-4 w-4" />
+          <span>Announcements</span>
+        </button>
 
         <button
           onClick={() => setActiveTab('CERTIFICATES')}
@@ -598,7 +628,7 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
                     <th className="p-3.5">Branch</th>
                     <th className="p-3.5">Size</th>
                     <th className="p-3.5">Payment</th>
-                    <th className="p-3.5">Idea</th>
+                    <th className="p-3.5">Assign Award 🏆</th>
                     <th className="p-3.5">Action & Full Roster</th>
                   </tr>
                 </thead>
@@ -618,48 +648,59 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
                       </td>
                     </tr>
                   ) : (
-                    filteredTeams.map((t) => (
-                      <tr key={t.id} className="hover:bg-slate-800/40">
-                        <td className="p-3.5 font-mono text-indigo-400 font-bold">{t.teamCode}</td>
-                        <td className="p-3.5">
-                          <p className="font-bold text-white">{t.name}</p>
-                          <p className="text-[11px] text-slate-400">{t.ideaSubmission?.startupName || 'No idea yet'}</p>
-                        </td>
-                        <td className="p-3.5">
-                          <p className="font-medium text-slate-200">{t.members.find((m: any) => m.isLeader)?.name || t.members[0]?.name}</p>
-                          <p className="text-[10px] text-slate-400 font-mono">{t.members.find((m: any) => m.isLeader)?.rollNumber || t.members[0]?.rollNumber}</p>
-                        </td>
-                        <td className="p-3.5">
-                          <span className="rounded bg-slate-950 px-2 py-1 border border-slate-800 font-mono text-[11px]">
-                            {t.members.find((m: any) => m.isLeader)?.branch || t.members[0]?.branch}
-                          </span>
-                        </td>
-                        <td className="p-3.5 font-semibold text-slate-200">{t.size} Students</td>
-                        <td className="p-3.5">
-                          <span className={`rounded px-2 py-0.5 text-[10px] font-bold ${
-                            t.paymentStatus === 'SUCCESS' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
-                          }`}>
-                            {t.paymentStatus}
-                          </span>
-                        </td>
-                        <td className="p-3.5">
-                          {t.ideaSubmission ? (
-                            <span className="text-emerald-400 font-bold text-[11px]">Submitted ✓</span>
-                          ) : (
-                            <span className="text-slate-500 text-[11px]">Pending</span>
-                          )}
-                        </td>
-                        <td className="p-3.5">
-                          <button
-                            onClick={() => setSelectedTeamModal(t)}
-                            className="rounded-lg bg-indigo-600/30 text-indigo-300 hover:bg-indigo-600 hover:text-white px-2.5 py-1.5 font-bold text-[11px] transition border border-indigo-500/30 flex items-center gap-1"
-                          >
-                            <Users className="h-3.5 w-3.5" />
-                            <span>View Full Roster 👁️</span>
-                          </button>
-                        </td>
-                      </tr>
-                    ))
+                    filteredTeams.map((t) => {
+                      const currentAward = t.certificates?.[0]?.awardType || 'PARTICIPATION'
+                      return (
+                        <tr key={t.id} className="hover:bg-slate-800/40">
+                          <td className="p-3.5 font-mono text-indigo-400 font-bold">{t.teamCode}</td>
+                          <td className="p-3.5">
+                            <p className="font-bold text-white">{t.name}</p>
+                            <p className="text-[11px] text-slate-400">{t.ideaSubmission?.startupName || 'No idea yet'}</p>
+                          </td>
+                          <td className="p-3.5">
+                            <p className="font-medium text-slate-200">{t.members.find((m: any) => m.isLeader)?.name || t.members[0]?.name}</p>
+                            <p className="text-[10px] text-slate-400 font-mono">{t.members.find((m: any) => m.isLeader)?.rollNumber || t.members[0]?.rollNumber}</p>
+                          </td>
+                          <td className="p-3.5">
+                            <span className="rounded bg-slate-950 px-2 py-1 border border-slate-800 font-mono text-[11px]">
+                              {t.members.find((m: any) => m.isLeader)?.branch || t.members[0]?.branch}
+                            </span>
+                          </td>
+                          <td className="p-3.5 font-semibold text-slate-200">{t.size} Students</td>
+                          <td className="p-3.5">
+                            <span className={`rounded px-2 py-0.5 text-[10px] font-bold ${
+                              t.paymentStatus === 'SUCCESS' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
+                            }`}>
+                              {t.paymentStatus}
+                            </span>
+                          </td>
+                          <td className="p-3.5">
+                            <select
+                              value={currentAward}
+                              onChange={(e) => handleAssignTeamAward(t.id, e.target.value)}
+                              className="rounded-lg border border-indigo-500/40 bg-slate-950 px-2 py-1 text-[11px] font-bold text-amber-300 focus:outline-none cursor-pointer"
+                            >
+                              <option value="PARTICIPATION">📜 Outstanding Participation</option>
+                              <option value="WINNER">🏆 1st Place Winner</option>
+                              <option value="RUNNER_UP">🥈 2nd Place Runner-Up</option>
+                              <option value="SECOND_RUNNER_UP">🥉 3rd Place (2nd Runner-Up)</option>
+                              <option value="BEST_INNOVATION">💡 Best Innovation Award</option>
+                              <option value="BEST_TECH">⚙️ Best Technical Solution</option>
+                              <option value="BEST_IMPACT">🌍 Best Social Impact</option>
+                            </select>
+                          </td>
+                          <td className="p-3.5">
+                            <button
+                              onClick={() => setSelectedTeamModal(t)}
+                              className="rounded-lg bg-indigo-600/30 text-indigo-300 hover:bg-indigo-600 hover:text-white px-2.5 py-1.5 font-bold text-[11px] transition border border-indigo-500/30 flex items-center gap-1"
+                            >
+                              <Users className="h-3.5 w-3.5" />
+                              <span>View Roster 👁️</span>
+                            </button>
+                          </td>
+                        </tr>
+                      )
+                    })
                   )}
                 </tbody>
               </table>

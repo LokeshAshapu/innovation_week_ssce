@@ -120,32 +120,36 @@ export default function LoginPage() {
               <>
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    Team Code, Student Roll No, or Email *
+                    Team Code, Leader Email, or Roll No *
                   </label>
                   <input
                     type="text"
                     required
                     value={loginInput}
                     onChange={(e) => setLoginInput(e.target.value)}
-                    placeholder="e.g. IW-2026-1001 or 22CS1A0501"
+                    placeholder="e.g. IW-2026-1001 or leader@student.srisivani.ac.in"
                     className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition"
                   />
                   <p className="text-[11px] text-indigo-400 mt-1.5 font-medium">
-                    💡 You can log in using your Team Code (e.g. IW-2026-1001), any member's Roll Number, or Leader email.
+                    💡 Enter your Team Code (e.g. IW-2026-1001) or Leader Email and your Team Password.
                   </p>
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    Password (Default: <code className="text-indigo-400 font-mono">student123</code>)
+                    Team Password *
                   </label>
                   <input
                     type="password"
+                    required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="student123"
+                    placeholder="Enter auto-generated team password (e.g. IW-8492)"
                     className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition"
                   />
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    Check your registration confirmation email or success screen for your team password.
+                  </p>
                 </div>
               </>
             ) : (
