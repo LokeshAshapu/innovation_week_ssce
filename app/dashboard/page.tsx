@@ -29,36 +29,43 @@ export default async function DashboardPage() {
 
     eventSettings = await db.eventSettings.findFirst({ where: { id: '1' } }).catch(() => null)
 
-    // Find team for current user or default to AgriSense AI team
-    team = session.teamId
-      ? await db.team.findUnique({
-          where: { id: session.teamId },
-          include: {
-            members: true,
-            payments: true,
-            ideaSubmission: true,
-            prototypeSubmission: true,
-            mvpSubmission: true,
-            pitchSubmission: true,
-            certificates: true,
+    // Find team for current user by teamId, email, or fallback
+    const teamInclude = {
+      members: true,
+      payments: true,
+      ideaSubmission: true,
+      prototypeSubmission: true,
+      mvpSubmission: true,
+      pitchSubmission: true,
+      certificates: true,
+    }
+
+    if (session.teamId) {
+      team = await db.team.findUnique({
+        where: { id: session.teamId },
+        include: teamInclude,
+      }).catch(() => null)
+    }
+
+    if (!team && session.email) {
+      team = await db.team.findFirst({
+        where: {
+          members: {
+            some: {
+              email: { equals: session.email },
+            },
           },
-        })
-      : null
+        },
+        include: teamInclude,
+      }).catch(() => null)
+    }
 
     if (!team) {
-      // Fallback to first seeded team for demo viewing
+      // Fallback to first available team in database
       team = await db.team.findFirst({
-        where: { teamCode: 'IW-2026-1001' },
-        include: {
-          members: true,
-          payments: true,
-          ideaSubmission: true,
-          prototypeSubmission: true,
-          mvpSubmission: true,
-          pitchSubmission: true,
-          certificates: true,
-        },
-      })
+        include: teamInclude,
+        orderBy: { createdAt: 'desc' },
+      }).catch(() => null)
     }
   } catch (err) {
     console.error('Failed to query dashboard team data:', err)

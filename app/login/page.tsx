@@ -37,11 +37,11 @@ export default function LoginPage() {
       }
 
       if (data.user.role === 'ADMIN' || data.user.role === 'COORDINATOR' || data.user.role === 'FACULTY') {
-        router.push('/admin')
+        window.location.href = '/admin'
       } else if (data.user.role === 'EVALUATOR') {
-        router.push('/evaluator')
+        window.location.href = '/evaluator'
       } else {
-        router.push('/dashboard')
+        window.location.href = '/dashboard'
       }
     } catch (err) {
       console.error(err)

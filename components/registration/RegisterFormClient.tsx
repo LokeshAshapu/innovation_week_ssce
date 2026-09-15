@@ -406,7 +406,7 @@ export function RegisterFormClient() {
 
         <div className="flex flex-col sm:flex-row gap-3 pt-2">
           <button
-            onClick={() => router.push('/dashboard')}
+            onClick={() => { window.location.href = '/dashboard' }}
             className="flex-1 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 py-3.5 text-xs font-bold text-white hover:from-indigo-500 hover:to-violet-500 transition shadow-lg"
           >
             Go to Team Dashboard →
