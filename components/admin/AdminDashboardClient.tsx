@@ -80,6 +80,9 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
   // Payment screenshot preview modal
   const [previewImage, setPreviewImage] = useState<string | null>(null)
 
+  // Selected Team Details Modal State
+  const [selectedTeamModal, setSelectedTeamModal] = useState<any | null>(null)
+
   // Demo Certificate State
   const [demoStudentName, setDemoStudentName] = useState('A. LOKESH')
   const [demoRollNumber, setDemoRollNumber] = useState('22CSE0501')
@@ -596,19 +599,20 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
                     <th className="p-3.5">Size</th>
                     <th className="p-3.5">Payment</th>
                     <th className="p-3.5">Idea</th>
+                    <th className="p-3.5">Action & Full Roster</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800 text-slate-300">
                   {filteredTeams.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="p-10 text-center text-slate-400">
+                      <td colSpan={8} className="p-10 text-center text-slate-400">
                         <div className="flex flex-col items-center justify-center space-y-3">
                           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
                             <Users className="h-6 w-6" />
                           </div>
-                          <p className="text-sm font-bold text-white">No Team Registrations Yet</p>
+                          <p className="text-sm font-bold text-white">No Team Registrations Found</p>
                           <p className="text-xs text-slate-400 max-w-md">
-                            All dummy data has been removed. Live student team registrations submitted on the portal will immediately upload and show up here in real-time.
+                            Live student team registrations submitted on the portal will immediately upload and show up here in real-time.
                           </p>
                         </div>
                       </td>
@@ -622,15 +626,15 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
                           <p className="text-[11px] text-slate-400">{t.ideaSubmission?.startupName || 'No idea yet'}</p>
                         </td>
                         <td className="p-3.5">
-                          <p className="font-medium text-slate-200">{t.members.find((m: any) => m.isLeader)?.name}</p>
-                          <p className="text-[10px] text-slate-400 font-mono">{t.members.find((m: any) => m.isLeader)?.rollNumber}</p>
+                          <p className="font-medium text-slate-200">{t.members.find((m: any) => m.isLeader)?.name || t.members[0]?.name}</p>
+                          <p className="text-[10px] text-slate-400 font-mono">{t.members.find((m: any) => m.isLeader)?.rollNumber || t.members[0]?.rollNumber}</p>
                         </td>
                         <td className="p-3.5">
                           <span className="rounded bg-slate-950 px-2 py-1 border border-slate-800 font-mono text-[11px]">
-                            {t.members.find((m: any) => m.isLeader)?.branch}
+                            {t.members.find((m: any) => m.isLeader)?.branch || t.members[0]?.branch}
                           </span>
                         </td>
-                        <td className="p-3.5 font-semibold text-slate-200">{t.size}</td>
+                        <td className="p-3.5 font-semibold text-slate-200">{t.size} Students</td>
                         <td className="p-3.5">
                           <span className={`rounded px-2 py-0.5 text-[10px] font-bold ${
                             t.paymentStatus === 'SUCCESS' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
@@ -644,6 +648,15 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
                           ) : (
                             <span className="text-slate-500 text-[11px]">Pending</span>
                           )}
+                        </td>
+                        <td className="p-3.5">
+                          <button
+                            onClick={() => setSelectedTeamModal(t)}
+                            className="rounded-lg bg-indigo-600/30 text-indigo-300 hover:bg-indigo-600 hover:text-white px-2.5 py-1.5 font-bold text-[11px] transition border border-indigo-500/30 flex items-center gap-1"
+                          >
+                            <Users className="h-3.5 w-3.5" />
+                            <span>View Full Roster 👁️</span>
+                          </button>
                         </td>
                       </tr>
                     ))
@@ -753,6 +766,117 @@ export function AdminDashboardClient({ stats, teams, payments, settings }: Admin
                 </tbody>
 
               </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* FULL TEAM ROSTER & DETAILS MODAL */}
+      {selectedTeamModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm overflow-y-auto">
+          <div className="relative max-w-3xl w-full my-8 rounded-3xl bg-slate-900 border border-slate-700 p-6 sm:p-8 space-y-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+              <div className="flex items-center gap-3">
+                <span className="font-mono text-sm font-bold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-md border border-indigo-500/20">
+                  {selectedTeamModal.teamCode}
+                </span>
+                <div>
+                  <h3 className="text-xl font-extrabold text-white">{selectedTeamModal.name}</h3>
+                  <p className="text-xs text-slate-400">
+                    Startup: <strong className="text-slate-200">{selectedTeamModal.ideaSubmission?.startupName || 'Not submitted yet'}</strong>
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedTeamModal(null)}
+                className="rounded-xl bg-slate-800 p-2 text-slate-400 hover:text-white hover:bg-slate-700 transition"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Team Meta & Payment Badge */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs">
+              <div>
+                <span className="text-slate-400">Payment Status:</span>
+                <p className={`font-bold mt-0.5 ${selectedTeamModal.paymentStatus === 'SUCCESS' ? 'text-emerald-400' : 'text-amber-400'}`}>
+                  {selectedTeamModal.paymentStatus === 'SUCCESS' ? '✓ Paid & Verified' : '💵 ' + selectedTeamModal.paymentStatus}
+                </p>
+              </div>
+              <div>
+                <span className="text-slate-400">Team Size:</span>
+                <p className="font-bold text-white mt-0.5">{selectedTeamModal.size || selectedTeamModal.members?.length} Members</p>
+              </div>
+              <div>
+                <span className="text-slate-400">Registration Date:</span>
+                <p className="font-mono text-slate-300 mt-0.5">
+                  {selectedTeamModal.createdAt ? new Date(selectedTeamModal.createdAt).toLocaleDateString() : 'Recent'}
+                </p>
+              </div>
+            </div>
+
+            {/* Members Roster Grid */}
+            <div className="space-y-3">
+              <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                <Users className="h-4 w-4 text-indigo-400" />
+                <span>Full Team Roster ({selectedTeamModal.members?.length || 0} Students)</span>
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {selectedTeamModal.members?.map((m: any, idx: number) => (
+                  <div
+                    key={m.id || idx}
+                    className={`rounded-2xl border p-4 space-y-2 ${
+                      m.isLeader ? 'border-indigo-500/40 bg-indigo-500/5' : 'border-slate-800 bg-slate-950'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-white text-sm">{m.name}</span>
+                      {m.isLeader ? (
+                        <span className="rounded bg-indigo-500/20 px-2 py-0.5 text-[9px] font-bold text-indigo-300">
+                          LEADER 👑
+                        </span>
+                      ) : (
+                        <span className="rounded bg-slate-800 px-2 py-0.5 text-[9px] font-bold text-slate-400">
+                          Member {idx + 1}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="text-xs space-y-1">
+                      <p className="font-mono text-indigo-400 font-bold">Roll No: {m.rollNumber}</p>
+                      <p className="text-slate-300">
+                        {m.branch} {m.diplomaBranch ? `(${m.diplomaBranch})` : ''} • {m.year}
+                      </p>
+                      {m.email && (
+                        <p className="text-slate-400 flex items-center gap-1 text-[11px] truncate">
+                          <Mail className="h-3 w-3 shrink-0 text-slate-500" />
+                          <a href={`mailto:${m.email}`} className="hover:underline hover:text-indigo-300">
+                            {m.email}
+                          </a>
+                        </p>
+                      )}
+                      {m.phone && (
+                        <p className="text-slate-400 flex items-center gap-1 text-[11px]">
+                          <span>📞</span>
+                          <a href={`tel:${m.phone}`} className="hover:underline hover:text-emerald-300 font-mono">
+                            {m.phone}
+                          </a>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2 border-t border-slate-800">
+              <button
+                onClick={() => setSelectedTeamModal(null)}
+                className="rounded-xl bg-indigo-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-indigo-500 transition shadow-lg"
+              >
+                Close Roster Details
+              </button>
             </div>
           </div>
         </div>

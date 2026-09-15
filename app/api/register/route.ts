@@ -172,15 +172,17 @@ export async function POST(request: Request) {
       console.error('[Register Route] Email dispatch error:', emailErr)
     }
 
-    // Save registration backup JSON for Vercel persistence
+    // Save registration backup JSON for persistence
     try {
       const fs = await import('fs')
-      const backupPath = '/tmp/registrations_backup.json'
-      let existingBackup: any[] = []
-      if (fs.existsSync(backupPath)) {
-        existingBackup = JSON.parse(fs.readFileSync(backupPath, 'utf8') || '[]')
-      }
-      existingBackup.push({
+      const path = await import('path')
+      const candidateBackupPaths = [
+        '/tmp/registrations_backup.json',
+        path.join(process.cwd(), 'prisma', 'persistent_teams.json'),
+        path.join(process.cwd(), 'persistent_teams.json'),
+      ]
+
+      const newEntry = {
         teamCode,
         teamName: teamName.trim(),
         paymentMethod,
@@ -188,8 +190,22 @@ export async function POST(request: Request) {
         screenshotData,
         membersList,
         createdAt: new Date().toISOString(),
-      })
-      fs.writeFileSync(backupPath, JSON.stringify(existingBackup, null, 2))
+      }
+
+      for (const backupPath of candidateBackupPaths) {
+        try {
+          let existingBackup: any[] = []
+          if (fs.existsSync(backupPath)) {
+            existingBackup = JSON.parse(fs.readFileSync(backupPath, 'utf8') || '[]')
+          }
+          if (!existingBackup.some((t) => t.teamCode === teamCode)) {
+            existingBackup.push(newEntry)
+            fs.writeFileSync(backupPath, JSON.stringify(existingBackup, null, 2))
+          }
+        } catch (fErr) {
+          console.warn('Backup path write note:', backupPath, fErr)
+        }
+      }
     } catch (bErr) {
       console.warn('Backup save note:', bErr)
     }
